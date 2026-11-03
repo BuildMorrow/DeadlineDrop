@@ -16,8 +16,9 @@ Non-functional requirements: local processing, no mandatory paid AI APIs, access
 
 ## MVP boundaries
 
-Text input only. Image OCR, PDFs, checklists and optional AI are later milestones. Phase 0 provides only the project foundation and shell.
+Text input only. Image OCR, PDFs, checklists and optional AI are later milestones. The current implementation supports the text workflow with limited deterministic parsing; image and document input remain future work.
 
 ## Success criteria
 
 Users can review a representative set of English and Vietnamese examples, correct uncertain results, and import the exported calendar events with their intended dates and times. Usability, accessibility, privacy and extraction quality should be evaluated with real examples before release.
+

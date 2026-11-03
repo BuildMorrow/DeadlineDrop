@@ -1,15 +1,13 @@
 # Architecture
 
-The planned application is a static React and TypeScript frontend. Phase 0 contains only an informational shell; no extraction or export pipeline exists yet.
+DeadlineDrop is a static React and TypeScript frontend. It keeps input and candidates in browser memory.
 
-## Responsibilities
+## Responsibilities and flow
 
-`src/app` owns application composition, `src/styles` shared styling, and `src/components` will hold reusable UI when needed. Future `src/features/extraction`, `review`, and `calendar` modules will own their respective workflows; `src/lib` will contain genuinely shared utilities. `tests` contains tests; `public` holds static assets; `docs` holds project documentation; `.github` contains collaboration and CI configuration. Empty feature directories are deferred until needed.
+src/app owns the interface and review state; src/features/extraction detects explicit dates and times; src/features/calendar validates confirmed events and serializes ICS; src/styles holds shared styling. Tests live in tests, project documents in docs, and collaboration and CI configuration in .github.
 
-## Proposed flow
-
-Text input -> local extraction of candidate events and uncertainty -> user review and correction -> selection -> ICS generation and download. The extraction pipeline should preserve source context and explicitly represent missing or ambiguous values rather than guessing. Dates, time zones, all-day events and ICS escaping require careful design and tests.
+Text input -> deterministic local extraction with source context and warnings -> user editing and explicit confirmation -> ICS generation and browser download. Ambiguous or missing dates are left empty. Missing times are flagged for review. Timed events are converted from browser-local time to UTC; all-day events use calendar dates. No duration is inferred for timed events.
 
 ## Testing and privacy
 
-Use Vitest for behavior and edge cases, including ambiguous dates and calendar serialization, and test accessible user flows as they are implemented. CI runs lint, type checking, tests and build. User content should remain in the browser; avoid logging, analytics, or network transmission of content. Optional future AI requires explicit consent and a separate privacy design.
+Vitest covers representative extraction and calendar serialization cases. CI runs lint, type checking, tests and build. User content remains in the browser; avoid logging, analytics, or network transmission of content. Optional future AI requires explicit consent and a separate privacy design.

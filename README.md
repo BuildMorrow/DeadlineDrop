@@ -2,19 +2,13 @@
 
 **Turn anything into a deadline.**
 
-DeadlineDrop is a free, open-source, privacy-first project intended to turn natural-language messages and documents into structured calendar events. Important dates arrive in many places; copying them into a calendar by hand is repetitive and error-prone.
+DeadlineDrop is a free, open-source, privacy-first tool for turning scheduling information into calendar events. Manually transferring dates from messages is repetitive and error-prone.
 
-## Status
+## Current status
 
-Phase 0 provides a development foundation and an informational application shell. Extraction, review, and calendar export are not implemented yet.
+The v0.1 text workflow is available for initial use: paste English or Vietnamese text, review and edit candidate events, confirm them, and export an ICS file. Processing happens locally in your browser. This is deterministic, limited parsing, not general language understanding: check every result against the original.
 
-## Planned features
-
-- v0.1: paste English or Vietnamese text, review and edit potential events, and export selected events as an ICS file.
-- v0.2: extract text from images and screenshots using OCR.
-- v1.0: support PDFs, multiple deadlines, checklists, improved language understanding, and optional AI assistance.
-
-See the [roadmap](docs/ROADMAP.md) for milestones. These are plans, not available features.
+Use one event per line and include a four-digit year. Supported dates include ISO (2027-05-25), numeric dates (25/05/2027 or 05/25/2027), Vietnamese (25 tháng 5 năm 2027), and English month names (May 25, 2027). Ambiguous numeric dates require manual entry. Times include 14:30, 2:30 pm and 14 giờ 30. A missing time requires an explicit all-day confirmation or a time. Relative dates, timezone abbreviations, date ranges and multiple events on the same line are not reliably interpreted. Timed events use your browser's displayed local timezone and have no inferred duration.
 
 ## Getting started
 
@@ -29,13 +23,13 @@ Install Node.js 20 or newer and npm, then run `npm install` and `npm run dev`. O
 - `npm run typecheck` — check TypeScript types.
 - `npm test` — run Vitest.
 
-## Technology
+## Technology and roadmap
 
-React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The frontend is intended to be deployable as a static website.
+React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is planned for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md).
 
 ## Privacy
 
-The initial product is intended to process content locally, without a backend, account, database, or mandatory API key. Missing information must not be silently invented, and users must review results before export. Future optional AI features require careful privacy design.
+Input stays in the browser; the application has no backend, account, database, mandatory API key or analytics. Review all results before exporting. Future optional AI features require a separate privacy design.
 
 ## Contributing and license
 

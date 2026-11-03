@@ -1,6 +1,6 @@
 # Roadmap
 
-All milestones below are planned; Phase 0 is a foundation only.
+The v0.1 core workflow is implemented with limited deterministic parsing and needs further usability and extraction evaluation. Later milestones are planned.
 
 ## v0.1 — Text to calendar
 
@@ -16,3 +16,4 @@ All milestones below are planned; Phase 0 is a foundation only.
 
 - PDF input and multiple deadlines, event checklists, and improved language understanding.
 - Optional AI-assisted extraction with an explicit privacy design.
+
