@@ -34,3 +34,11 @@ Input stays in the browser; the application has no backend, account, database, m
 ## Contributing and license
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Licensed under the [MIT License](LICENSE).
+
+## Screenshots
+
+Screenshots will be added after the public demo has been reviewed; none are available yet.
+
+## GitHub Pages deployment
+
+The deployment workflow is manual to avoid publishing without approval. After the changes are merged, open repository **Settings → Pages**, choose **GitHub Actions** as the build source, then run **Deploy GitHub Pages** from the Actions tab on the approved main revision. Check the workflow result and open the reported Pages URL, including `/DeadlineDrop/`, to verify the live site and assets. The live demo has not yet been verified.
