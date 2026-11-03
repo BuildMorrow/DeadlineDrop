@@ -1,6 +1,6 @@
 import type { Candidate } from '../extraction/extract'
 
-const escapeText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
+const escapeText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
 const pad = (value: number) => String(value).padStart(2, '0')
 function fold(line: string): string {
   const encoder = new TextEncoder()

@@ -21,7 +21,8 @@ function validDate(y: number, m: number, d: number) {
 export function extractCandidates(text: string): Candidate[] {
   const candidates: Candidate[] = []
   for (const line of text.split(/\r?\n/)) {
-    for (const match of line.matchAll(datePattern)) {
+    const matches = [...line.matchAll(datePattern)]
+    for (const match of matches) {
       let y = 0, m = 0, d = 0
       const warnings: string[] = []
       if (match[1]) { y = +match[1]; m = +match[2]; d = +match[3] }
@@ -37,7 +38,8 @@ export function extractCandidates(text: string): Candidate[] {
       if (!y) warnings.push('Year missing: enter a date.')
       else if (!warnings.length && !validDate(y, m, d)) warnings.push('Invalid date: enter a valid date.')
       const date = warnings.length ? '' : `${y}-${pad(m)}-${pad(d)}`
-      const timeMatch = line.match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?\b|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?\b|\b(\d{1,2})\s*(am|pm)\b/iu)
+      if (matches.length > 1) warnings.push('Multiple dates on this line: check each event and enter its time.')
+      const timeMatch = matches.length === 1 ? line.match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?\b|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?\b|\b(\d{1,2})\s*(am|pm)\b/iu) : null
       let time = ''
       if (timeMatch) {
         let hour = +(timeMatch[1] || timeMatch[4] || timeMatch[6]); const minute = +(timeMatch[2] || timeMatch[5] || 0)
@@ -47,7 +49,7 @@ export function extractCandidates(text: string): Candidate[] {
         if (hour < 24 && minute < 60) time = `${pad(hour)}:${pad(minute)}`
         else warnings.push('Invalid time: correct it or choose all-day.')
       } else warnings.push('No time found: confirm all-day or enter a time.')
-      candidates.push({ id: `${candidates.length}`, source: line.trim(), title: line.trim(), date, time, allDay: !time, warnings, confirmed: false })
+      candidates.push({ id: `${candidates.length}`, source: line.trim(), title: line.trim(), date, time, allDay: false, warnings, confirmed: false })
     }
   }
   return candidates
