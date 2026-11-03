@@ -100,6 +100,9 @@ export function extractCandidates(text: string): Candidate[] {
         warnings.push('Review the start and end of this range, or choose the offset interpretation if applicable.')
       }
       if (range && (prefixed || unknown)) { resolutionKind = 'zone'; warnings.push('A range with a source time zone requires manual local date and time correction.') }
+      const timeCount = [...line.replace(/(?:UTC|GMT)\s*[+-]\d{1,2}(?::?\d{2})?\b|[+]\d{2}:?\d{2}\b/gi, '').matchAll(/\b\d{1,2}:\d{2}\b/g)].length
+      if (!range && !iso && timeCount > 1) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Multiple times found: enter the correct local date and time.') }
+      if (!iso && /\b\d{1,2}:\d{2}:\d{2}\b/.test(line)) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Seconds are not supported: enter a corrected local time.') }
       if (offset && !needsResolution && date && time && matches.length === 1) {
         try { const local = fields(convertOffset(date, time, offset)); date = local.date; time = local.time; choice = local.choice }
         catch { needsResolution = true; resolutionKind = 'zone'; warnings.push('Could not convert the source time zone. Enter the correct local time.') }

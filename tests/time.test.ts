@@ -87,3 +87,11 @@ describe('source timezone resolution', () => {
     }
   })
 })
+
+it('blocks multiple unrelated times and unsupported seconds', () => {
+  for (const text of ['Meeting 2027-05-20 10:00 and 11:00', 'Meeting 2027-05-20 10:00:45']) {
+    const [event] = extractCandidates(text)
+    expect(event.needsResolution).toBe(true)
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  }
+})
