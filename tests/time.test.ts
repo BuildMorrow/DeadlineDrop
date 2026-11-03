@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { extractCandidates } from '../src/features/extraction/extract'
 import { createCalendar, isValidEvent } from '../src/features/calendar/ics'
 import { convertOffset, fields, localOptions } from '../src/features/calendar/time'
+import { resolveManual, resolveOffset, resolveRange } from '../src/features/calendar/resolution'
 
 describe('time zone and range safety', () => {
   it('converts explicit UTC to Bangkok and preserves the instant', () => {
@@ -22,16 +23,19 @@ describe('time zone and range safety', () => {
     const [event] = extractCandidates('2027-05-20 14:30 EST')
     expect(event.needsResolution).toBe(true)
     expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
-    expect(isValidEvent({ ...event, needsResolution: false })).toBe(true)
+    expect(resolveManual(event).needsResolution).toBe(true)
+    expect(resolveManual({ ...event, editedDate: true }).needsResolution).toBe(true)
+    expect(resolveManual({ ...event, editedDate: true, editedTime: true }).needsResolution).toBe(false)
   })
   it('preserves a time range and requires correction for overnight ranges', () => {
     const [event] = extractCandidates('2027-05-20 10:00-11:00')
     expect(event.endTime).toBe('11:00'); expect(event.endDate).toBe('2027-05-20')
     expect(isValidEvent(event)).toBe(false)
-    expect(createCalendar([{ ...event, needsResolution: false, confirmed: true }])).toContain('DTEND:')
+    expect(createCalendar([{ ...resolveRange(event), confirmed: true }])).toContain('DTEND:')
     const [overnight] = extractCandidates('2027-05-20 23:00-01:00')
     expect(isValidEvent(overnight)).toBe(false)
-    expect(isValidEvent({ ...overnight, needsResolution: false, endDate: '2027-05-21' })).toBe(true)
+    expect(resolveRange(overnight).needsResolution).toBe(true)
+    expect(isValidEvent(resolveRange({ ...overnight, endDate: '2027-05-21' }))).toBe(true)
   })
   it('distinguishes repeated and nonexistent New York times', () => {
     const repeated = localOptions('2027-11-07', '01:30', 'America/New_York')
@@ -53,3 +57,33 @@ if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'America/New_York') {
     expect(isValidEvent(missing)).toBe(false)
   })
 }
+
+
+describe('source timezone resolution', () => {
+  it('resolves ISO offset and prefixed offset to the same instant', () => {
+    for (const text of ['2027-05-20T14:30:00-05:00', '2027-05-20 14:30 UTC-05:00']) {
+      const [event] = extractCandidates(text)
+      expect(event.sourceZone).toContain('-05:00')
+      expect(createCalendar([{ ...event, confirmed: true }])).toContain('DTSTART:20270520T193000Z')
+    }
+  })
+  it('blocks a bare negative offset until the user selects an interpretation', () => {
+    const [event] = extractCandidates('2027-05-20 14:30-05:00')
+    expect(event.resolutionKind).toBe('offset-or-range')
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+    const resolved = resolveOffset(event)
+    expect(createCalendar([{ ...resolved, confirmed: true }])).toContain('DTSTART:20270520T193000Z')
+    if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Bangkok') expect([resolved.date, resolved.time]).toEqual(['2027-05-21', '02:30'])
+    expect(resolveRange(event).needsResolution).toBe(true)
+  })
+  it('recognizes zones before the time and flags unsupported zones', () => {
+    const [event] = extractCandidates('Meeting at 14:30 on 2027-05-20 (GMT+7)')
+    expect(createCalendar([{ ...event, confirmed: true }])).toContain('DTSTART:20270520T073000Z')
+    for (const text of ['PST meeting 2027-05-20 14:30', '2027-05-20 14:30 America/New_York', '2027-05-20 14:30 XYZ']) {
+      const [unknown] = extractCandidates(text)
+      expect(unknown.needsResolution).toBe(true)
+      expect(resolveManual(unknown).needsResolution).toBe(true)
+      expect(() => createCalendar([{ ...unknown, confirmed: true }])).toThrow()
+    }
+  })
+})

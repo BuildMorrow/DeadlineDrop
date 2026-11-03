@@ -11,3 +11,5 @@ Text input -> deterministic local extraction with source context and warnings ->
 ## Testing and privacy
 
 Vitest covers representative extraction and calendar serialization cases. CI runs lint, type checking, tests and build. User content remains in the browser; avoid logging, analytics, or network transmission of content. Optional future AI requires explicit consent and a separate privacy design.
+
+Explicit offsets are converted using Temporal. A bare negative offset overlaps with range syntax and requires an explicit choice. Unsupported zone clues require editing both the local date and time before applying a correction. This is a limited parser and cannot identify every natural-language zone. See the manual QA checklist before release.
