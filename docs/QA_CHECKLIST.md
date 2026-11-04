@@ -18,3 +18,17 @@ Record actual results and browser, operating system, timezone, and calendar appl
 | Keyboard | Navigate through inputs, ambiguity choices and export | All controls reachable and usable; focus visible | Not recorded | Not run |
 | Mobile | Open at 320px width and review an event | No inaccessible controls or horizontal overflow | Not recorded | Not run |
 | ICS content | Export confirmed time range with comma and Unicode title | Correct UTC DTSTART/DTEND, escaped summary and CRLF | Not recorded | Not run |
+
+
+## Phase 2 observations — 2026-11-04
+
+In-app browser on Windows, `Asia/Saigon`, local development server. These results do not establish compatibility with external calendar applications.
+
+| Case | Input | Expected | Actual | Status |
+| --- | --- | --- | --- | --- |
+| ISO without seconds | `2027-05-20T14:30-05:00` | May 21, 02:30 UTC+07:00 | Initially showed May 20, 14:30; after fix showed May 21, 02:30 and source offset | PASS after fix |
+| English and Vietnamese | `Submit report 2027-05-20 14:30` and `Nộp bài 25 tháng 5 năm 2027` | Two candidates; missing time flagged | Two candidates appeared, missing time flagged | PASS |
+| Edit, remove and confirm | Edit English title, remove Vietnamese candidate, confirm English candidate | One confirmed event; export enabled only after confirmation | Observed as expected | PASS |
+| Download and import | Export confirmed event, import into a calendar | File contains correct instant and imports successfully | Export button clicked; downloaded file and external import not verified | NOT TESTED |
+| Mobile, keyboard and screen reader | Navigate and review at mobile size using keyboard and assistive technology | Controls readable, accessible, and focus visible | Not executed | NOT TESTED |
+| DST and cross-midnight in browser | Test using America/New_York and a cross-midnight range | Correct occurrence choice and end date required | Automated tests run separately; browser flow not executed | NOT TESTED |

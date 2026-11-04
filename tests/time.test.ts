@@ -12,6 +12,13 @@ describe('time zone and range safety', () => {
     expect(z.toInstant().toString()).toBe('2027-05-20T14:30:00Z')
     expect(fields(convertOffset('2027-05-20', '23:30', '+00:00', 'Asia/Bangkok')).date).toBe('2027-05-21')
   })
+  it('parses ISO UTC timestamps with and without seconds', () => {
+    for (const input of ['2027-05-20T14:30Z', '2027-05-20T14:30:00Z']) {
+      const [event] = extractCandidates(input)
+      expect(isValidEvent(event)).toBe(true)
+      expect(createCalendar([{ ...event, confirmed: true }])).toContain('DTSTART:20270520T143000Z')
+    }
+  })
   it('parses explicit offsets into the same instant and ICS', () => {
     for (const input of ['2027-05-20 14:30 UTC', '2027-05-20 14:30 GMT', '2027-05-20 21:30 +07:00', '2027-05-20 09:30 UTC-05:00']) {
       const [event] = extractCandidates(input)
@@ -61,7 +68,7 @@ if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'America/New_York') {
 
 describe('source timezone resolution', () => {
   it('resolves ISO offset and prefixed offset to the same instant', () => {
-    for (const text of ['2027-05-20T14:30:00-05:00', '2027-05-20 14:30 UTC-05:00']) {
+    for (const text of ['2027-05-20T14:30:00-05:00', '2027-05-20T14:30-05:00', '2027-05-20 14:30 UTC-05:00']) {
       const [event] = extractCandidates(text)
       expect(event.sourceZone).toContain('-05:00')
       expect(createCalendar([{ ...event, confirmed: true }])).toContain('DTSTART:20270520T193000Z')

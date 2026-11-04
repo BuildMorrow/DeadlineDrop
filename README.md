@@ -8,7 +8,11 @@ DeadlineDrop is a free, open-source, privacy-first tool for turning scheduling i
 
 The v0.1 text workflow is available for initial use: paste English or Vietnamese text, review and edit candidate events, confirm them, and export an ICS file. Processing happens locally in your browser. This is deterministic, limited parsing, not general language understanding: check every result against the original.
 
-Use one event per line and include a four-digit year. Supported dates include ISO (2027-05-25), numeric dates (25/05/2027 or 05/25/2027), Vietnamese (25 tháng 5 năm 2027), and English month names (May 25, 2027). Ambiguous numeric dates require manual entry. Times include 14:30, 2:30 pm and 14 giờ 30. A missing time requires an explicit all-day confirmation or a time. Supported timezone clues include UTC/GMT, UTC/GMT with numeric offsets (for example GMT+7 or UTC-05:00), positive numeric offsets after the time, and ISO timestamps with seconds `00` and an offset or Z. The result is converted to the browser's displayed timezone and offset. A bare negative offset such as `14:30-05:00` is indistinguishable from a time range: choose the intended interpretation before confirming. Ranges require explicit selection and an end date; cross-midnight ranges require correction of that end date. IANA zone names and common timezone abbreviations such as PST are not interpreted: edit the local date and time to resolve them. Detection cannot cover every natural-language timezone reference; check the source carefully. Repeated daylight-saving times require an occurrence choice; nonexistent times must be corrected. Relative dates, date ranges and multiple events on one line are not reliably interpreted. Timed events without an end time have no inferred duration. Manual browser and calendar import checks are listed in [QA checklist](docs/QA_CHECKLIST.md).
+Use one event per line and include a four-digit year. Supported dates include ISO (2027-05-25), numeric dates (25/05/2027 or 05/25/2027), Vietnamese (25 tháng 5 năm 2027), and English month names (May 25, 2027). Ambiguous numeric dates require manual entry. Times include 14:30, 2:30 pm and 14 giờ 30. A missing time requires an explicit all-day confirmation or a time. Supported timezone clues include UTC/GMT, UTC/GMT with numeric offsets (for example GMT+7 or UTC-05:00), positive numeric offsets after the time, and ISO timestamps with optional `00` seconds and an offset or Z. The result is converted to the browser's displayed timezone and offset. A bare negative offset such as `14:30-05:00` is indistinguishable from a time range: choose the intended interpretation before confirming. Ranges require explicit selection and an end date; cross-midnight ranges require correction of that end date. IANA zone names and common timezone abbreviations such as PST are not interpreted: edit the local date and time to resolve them. Detection cannot cover every natural-language timezone reference; check the source carefully. Repeated daylight-saving times require an occurrence choice; nonexistent times must be corrected. Relative dates, date ranges and multiple events on one line are not reliably interpreted. Timed events without an end time have no inferred duration. Manual browser and calendar import checks are listed in [QA checklist](docs/QA_CHECKLIST.md).
+
+## How to use
+
+Paste a message containing explicit dates, preferably one event per line, and select **Find dates**. Review the original text and each candidate, edit any details, resolve warnings and confirm the events you want. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time.
 
 ## Getting started
 
@@ -27,9 +31,11 @@ Install Node.js 20 or newer and npm, then run `npm install` and `npm run dev`. O
 
 React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is planned for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md).
 
-## Privacy
+## Privacy and security
 
 Input stays in the browser; the application has no backend, account, database, mandatory API key or analytics. Review all results before exporting. Future optional AI features require a separate privacy design.
+
+For vulnerability reporting, see [SECURITY.md](SECURITY.md).
 
 ## Contributing and license
 
@@ -42,3 +48,7 @@ Screenshots will be added after the public demo has been reviewed; none are avai
 ## GitHub Pages deployment
 
 The deployment workflow is manual to avoid publishing without approval. After the changes are merged, open repository **Settings → Pages**, choose **GitHub Actions** as the build source, then run **Deploy GitHub Pages** from the Actions tab on the approved main revision. Check the workflow result and open the reported Pages URL, including `/DeadlineDrop/`, to verify the live site and assets. The live demo has not yet been verified.
+
+## Repository topics
+
+Suggested GitHub topics: `open-source`, `productivity`, `calendar`, `typescript`, `react`, `privacy`, and `ics`.

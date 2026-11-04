@@ -54,7 +54,7 @@ export function extractCandidates(text: string): Candidate[] {
       else if (!warnings.length && !validDate(y, m, d)) warnings.push('Invalid date: enter a valid date.')
       let date = warnings.length ? '' : `${y}-${pad(m)}-${pad(d)}`
       if (matches.length > 1) warnings.push('Multiple dates on this line: check each event and enter its time.')
-      const timeMatch = matches.length === 1 ? line.replace(/(\d{4}-\d{2}-\d{2})T/, '$1 ').match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?\b|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?\b|\b(\d{1,2})\s*(am|pm)\b/iu) : null
+      const timeMatch = matches.length === 1 ? line.replace(/(\d{4}-\d{2}-\d{2})T/, '$1 ').match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?(?=\b|Z\b)|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?\b|\b(\d{1,2})\s*(am|pm)\b/iu) : null
       let time = ''
       if (timeMatch) {
         let hour = +(timeMatch[1] || timeMatch[4] || timeMatch[6]); const minute = +(timeMatch[2] || timeMatch[5] || 0)
@@ -70,7 +70,7 @@ export function extractCandidates(text: string): Candidate[] {
       let needsResolution = false
       let resolutionKind: Candidate['resolutionKind'] = ''
       let ambiguousOffset = ''
-      const iso = line.match(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:(\d{2})(Z|[+-]\d{2}:\d{2})\b/i)
+      const iso = line.match(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::(\d{2}))?(Z|[+-]\d{2}:\d{2})\b/i)
       const prefixed = line.match(/\b(?:UTC|GMT)(?:\s*[+-]\d{1,2}(?::?\d{2})?)?\b/i)
       const unknown = line.match(/\b(?:[A-Za-z_]+\/[A-Za-z_]+|PST|PDT|EST|EDT|CST|CDT|MST|MDT|IST|BST|CET|CEST|JST|AEST|AEDT)\b/i) || [...line.matchAll(/\b[A-Z]{2,5}\b/g)].find(m => !['UTC', 'GMT', 'AM', 'PM'].includes(m[0]))
       const range = !iso ? line.match(/\b(\d{1,2}:\d{2})\s*(-|–|—|to|đến)\s*(\d{1,2}:\d{2})\b/iu) : null
@@ -78,7 +78,7 @@ export function extractCandidates(text: string): Candidate[] {
       let offset = ''
       if (iso) {
         sourceZone = iso[2]
-        if (iso[1] !== '00') { needsResolution = true; resolutionKind = 'zone'; warnings.push('Seconds are not supported: enter a corrected local time.') }
+        if (iso[1] && iso[1] !== '00') { needsResolution = true; resolutionKind = 'zone'; warnings.push('Seconds are not supported: enter a corrected local time.') }
         else offset = iso[2].toUpperCase() === 'Z' ? '+00:00' : iso[2]
       } else if (prefixed) {
         sourceZone = prefixed[0]
