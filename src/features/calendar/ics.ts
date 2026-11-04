@@ -1,4 +1,5 @@
 import type { Candidate } from '../extraction/extract'
+import { resolveLocal } from './time'
 
 const escapeText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -20,12 +21,15 @@ export function isValidEvent(event: Candidate): boolean {
   if (y < 1000) return false
   const check = new Date(y, m - 1, d)
   if (check.getFullYear() !== y || check.getMonth() !== m - 1 || check.getDate() !== d) return false
-  if (event.allDay) return true
-  if (!/^\d{2}:\d{2}$/.test(event.time)) return false
-  const [h, min] = event.time.split(':').map(Number)
-  if (h > 23 || min > 59) return false
-  const local = new Date(y, m - 1, d, h, min)
-  return local.getHours() === h && local.getMinutes() === min
+  if (event.needsResolution) return false
+  if (event.allDay) return !event.rangeRequired && !event.endTime
+  const start = resolveLocal(event.date, event.time, event.choice)
+  if (!start) return false
+  if (event.rangeRequired || event.endTime || event.endDate) {
+    const end = resolveLocal(event.endDate, event.endTime, event.endChoice)
+    return !!end && end.epochNanoseconds > start.epochNanoseconds
+  }
+  return true
 }
 export function createCalendar(events: Candidate[], now = new Date()): string {
   if (!events.length || events.some(event => !event.confirmed || !isValidEvent(event))) throw new Error('Only valid, confirmed events can be exported.')
@@ -37,8 +41,12 @@ export function createCalendar(events: Candidate[], now = new Date()): string {
       const next = new Date(y, m - 1, d + 1)
       lines.push(`DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`)
     } else {
-      const [h, min] = event.time.split(':').map(Number)
-      lines.push(`DTSTART:${utc(new Date(y, m - 1, d, h, min))}`)
+      const start = resolveLocal(event.date, event.time, event.choice)!
+      lines.push(`DTSTART:${utc(new Date(start.epochMilliseconds))}`)
+      if (event.endTime) {
+        const end = resolveLocal(event.endDate, event.endTime, event.endChoice)!
+        lines.push(`DTEND:${utc(new Date(end.epochMilliseconds))}`)
+      }
     }
     lines.push('END:VEVENT')
   })
