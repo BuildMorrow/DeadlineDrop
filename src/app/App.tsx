@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { extractCandidates, type Candidate } from '../features/extraction/extract'
 import { createCalendar, isValidEvent } from '../features/calendar/ics'
 import { localOptions, resolveLocal, type Choice } from '../features/calendar/time'
@@ -15,8 +15,16 @@ export default function App() {
   const [events, setEvents] = useState<Candidate[]>([])
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState('')
+  const confirmButtons = useRef<Record<string, HTMLButtonElement | null>>({})
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'browser local time'
   const update = (id: string, change: Partial<Candidate>) => setEvents(current => current.map(event => event.id === id ? { ...event, ...change, confirmed: false } : event))
+  const resolve = (event: Candidate, resolver: (candidate: Candidate) => Candidate) => {
+    const result = resolver(event)
+    update(event.id, result)
+    if (!result.needsResolution && isValidEvent(result)) {
+      requestAnimationFrame(() => confirmButtons.current[event.id]?.focus())
+    }
+  }
   const confirmed = events.filter(event => event.confirmed)
   function download() {
     try {
@@ -42,14 +50,14 @@ export default function App() {
         <div className="field-grid"><label className="field-label">DATE<input type="date" className={inputClass} value={event.date} onChange={e => update(event.id, { date: e.target.value, choice: '', editedDate: true })} /></label><label className="field-label">TIME<input type="time" className={inputClass} value={event.time} disabled={event.allDay} onChange={e => update(event.id, { time: e.target.value, choice: '', editedTime: true })} /></label></div>
         {event.sourceZone && <p className="event-detail">Source time zone: {event.sourceZone}. Times below are in {timezone}.</p>}
         {event.rangeRequired && <div className="field-grid"><label className="field-label">END DATE<input type="date" className={inputClass} value={event.endDate} onChange={e => update(event.id, { endDate: e.target.value, endChoice: '', editedEndDate: true })} /></label><label className="field-label">END TIME<input type="time" className={inputClass} value={event.endTime} onChange={e => update(event.id, { endTime: e.target.value, endChoice: '', editedEndTime: true })} /></label></div>}
-        {event.needsResolution && <div className="resolution" role="group" aria-label="Resolve time ambiguity"><p><strong>Resolve the source time before confirmation.</strong></p>{event.resolutionKind === 'zone' ? <><p>Edit the local date and time to the correct values, including the end date and time for a range, then apply your correction.</p><button className="button button-outline" disabled={!event.editedDate || !event.editedTime || (event.rangeRequired && (!event.editedEndDate || !event.editedEndTime))} onClick={() => update(event.id, resolveManual(event))}>Apply corrected local time</button></> : <div className="resolution-actions"><button className="button button-outline" onClick={() => update(event.id, resolveRange(event))}>Use as a time range</button>{event.resolutionKind === 'offset-or-range' && <button className="button button-outline" onClick={() => update(event.id, resolveOffset(event))}>Use {event.ambiguousOffset} as UTC offset</button>}</div>}</div>}
+        {event.needsResolution && <div className="resolution" role="group" aria-label="Resolve time ambiguity"><p><strong>Resolve the source time before confirmation.</strong></p>{event.resolutionKind === 'zone' ? <><p>Edit the local date and time to the correct values, including the end date and time for a range, then apply your correction.</p><button className="button button-outline" disabled={!event.editedDate || !event.editedTime || (event.rangeRequired && (!event.editedEndDate || !event.editedEndTime))} onClick={() => resolve(event, resolveManual)}>Apply corrected local time</button></> : <div className="resolution-actions"><button className="button button-outline" onClick={() => resolve(event, resolveRange)}>Use as a time range</button>{event.resolutionKind === 'offset-or-range' && <button className="button button-outline" onClick={() => resolve(event, resolveOffset)}>Use {event.ambiguousOffset} as UTC offset</button>}</div>}</div>}
         {!event.allDay && ([['Start', event.date, event.time, event.choice], ...(event.rangeRequired ? [['End', event.endDate, event.endTime, event.endChoice]] : [])] as const).map(([label, date, time, choice]) => {
           const options = localOptions(date, time)
           return <div key={label} className="event-detail" aria-live="polite">{date && time && options.length === 0 && <p className="validation">{label}: this local time does not exist. Choose another time.</p>}{options.length === 2 && <label className="field-label">{label}: this time occurs twice. Choose an offset.<select className={inputClass} value={choice} onChange={e => update(event.id, label === 'Start' ? { choice: e.target.value as Choice } : { endChoice: e.target.value as Choice })}><option value="">Choose an occurrence</option><option value="earlier">First ({options[0].offset})</option><option value="later">Second ({options[1].offset})</option></select></label>}{resolveLocal(date, time, choice as Choice) && <p><Icon name="clock" size={14} /> {label}: {date} {time} {timezone} (UTC{resolveLocal(date, time, choice as Choice)!.offset})</p>}</div>
         })}
         <label className="all-day"><input type="checkbox" checked={event.allDay} onChange={e => update(event.id, { allDay: e.target.checked })} /> All-day event</label>
         {!isValidEvent(event) && <p className="validation" aria-live="polite">Enter valid dates and times, resolve warnings, and ensure the end is after the start.</p>}
-        <button className="button button-confirm" aria-label={`${event.confirmed ? 'Confirmed' : 'Confirm'} event ${index + 1}`} disabled={!isValidEvent(event) || event.confirmed} onClick={() => setEvents(current => current.map(item => item.id === event.id ? { ...item, confirmed: true } : item))}><Icon name="check" size={16} />{event.confirmed ? 'Confirmed' : 'Confirm event'}</button></article>)}</div></div>}
+        <button ref={node => { confirmButtons.current[event.id] = node }} className="button button-confirm" aria-label={`${event.confirmed ? 'Confirmed' : 'Confirm'} event ${index + 1}`} disabled={!isValidEvent(event) || event.confirmed} onClick={() => setEvents(current => current.map(item => item.id === event.id ? { ...item, confirmed: true } : item))}><Icon name="check" size={16} />{event.confirmed ? 'Confirmed' : 'Confirm event'}</button></article>)}</div></div>}
       <div className="review-footer"><div><strong>Ready for your calendar?</strong><span>{confirmed.length ? `${confirmed.length} confirmed ${confirmed.length === 1 ? 'event' : 'events'}` : 'Confirm an event to export.'}</span></div><button className="button button-export" disabled={!confirmed.length} onClick={download}><Icon name="download" size={16} /> Export .ics</button></div>{error && <p role="alert" className="error-message">{error}</p>}</section></div>
       <div className="bottom-note"><span className="bottom-note-icon"><Icon name="alert" size={16} /></span><p><strong>Before you export.</strong> Check each date and time against your original message.</p></div>
     </main><footer className="site-footer"><div><span>Made for the moments that matter.</span><span>Built by <a href="https://github.com/BuildMorrow">BuildMorrow</a> <span aria-hidden="true">·</span> Open source &amp; free</span></div></footer>

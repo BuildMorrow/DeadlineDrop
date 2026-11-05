@@ -16,7 +16,7 @@ Paste a message containing explicit dates, preferably one event per line, and se
 
 ## Getting started
 
-Install Node.js 20 or newer and npm, then run `npm install` and `npm run dev`. Open the local URL printed by Vite.
+Install Node.js 20.19 or newer within the Node 20 LTS line (or Node 22.13+ / 24+) and npm, then run `npm install` and `npm run dev`. Open the local URL printed by Vite.
 
 ## Development commands
 
