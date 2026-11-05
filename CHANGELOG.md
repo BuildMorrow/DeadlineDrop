@@ -6,6 +6,7 @@
 - Review, edit, remove and confirm events before ICS export.
 - Support all-day events, explicit offsets, time ranges and DST disambiguation with user review.
 - Fix ISO timestamps with a numeric offset and no seconds being interpreted in the browser timezone.
+- Block malformed UTC/GMT offsets and unsupported compact ISO offsets for manual correction.
 - Prepare manual GitHub Pages deployment and a public preview QA checklist.
 
 Image OCR and PDF support remain planned for later releases.

@@ -102,3 +102,12 @@ it('blocks multiple unrelated times and unsupported seconds', () => {
     expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
   }
 })
+
+
+it('blocks malformed timezone offsets rather than interpreting a prefix', () => {
+  for (const input of ['2027-05-20 14:30 UTC+7:3', '2027-05-20 14:30 GMT+', '2027-05-20T14:30-0500']) {
+    const [event] = extractCandidates(input)
+    expect(event.needsResolution, input).toBe(true)
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  }
+})

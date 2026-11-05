@@ -71,7 +71,9 @@ export function extractCandidates(text: string): Candidate[] {
       let resolutionKind: Candidate['resolutionKind'] = ''
       let ambiguousOffset = ''
       const iso = line.match(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::(\d{2}))?(Z|[+-]\d{2}:\d{2})\b/i)
-      const prefixed = line.match(/\b(?:UTC|GMT)(?:\s*[+-]\d{1,2}(?::?\d{2})?)?\b/i)
+      const prefixed = line.match(/\b(?:UTC|GMT)\b(?:\s*[+-][\d:]*)?/i)
+      const malformedPrefix = !!prefixed && !/^(?:UTC|GMT)(?:\s*[+-](?:\d{1,2}|\d{2}\d{2}|\d{1,2}:\d{2}))?$/i.test(prefixed[0])
+      const unsupportedIsoOffset = !iso && /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?[+-]\d{2,4}\b/i.test(line)
       const unknown = line.match(/\b(?:[A-Za-z_]+\/[A-Za-z_]+|PST|PDT|EST|EDT|CST|CDT|MST|MDT|IST|BST|CET|CEST|JST|AEST|AEDT)\b/i) || [...line.matchAll(/\b[A-Z]{2,5}\b/g)].find(m => !['UTC', 'GMT', 'AM', 'PM'].includes(m[0]))
       const range = !iso ? line.match(/\b(\d{1,2}:\d{2})\s*(-|–|—|to|đến)\s*(\d{1,2}:\d{2})\b/iu) : null
       const barePositive = line.match(/\b\d{1,2}:\d{2}\s*(\+\d{2}:?\d{2})\b/)
@@ -84,12 +86,13 @@ export function extractCandidates(text: string): Candidate[] {
         sourceZone = prefixed[0]
         const part = sourceZone.match(/([+-])(\d{1,2})(?::?(\d{2}))?$/)
         const hours = part ? +part[2] : 0, minutes = part ? +(part[3] || 0) : 0
-        if (hours <= 23 && minutes < 60) offset = part ? `${part[1]}${pad(hours)}:${pad(minutes)}` : '+00:00'
+        if (!malformedPrefix && hours <= 23 && minutes < 60) offset = part ? `${part[1]}${pad(hours)}:${pad(minutes)}` : '+00:00'
         else { needsResolution = true; resolutionKind = 'zone'; warnings.push('Invalid source offset: enter a corrected local time.') }
       } else if (barePositive) {
         sourceZone = barePositive[1]
         offset = sourceZone.includes(':') ? sourceZone : `${sourceZone.slice(0, 3)}:${sourceZone.slice(3)}`
       }
+      if (unsupportedIsoOffset) { needsResolution = true; resolutionKind = 'zone'; sourceZone = 'Unsupported ISO offset'; warnings.push('The ISO time zone offset is unsupported: enter the correct local date and time.') }
       if (unknown) { sourceZone = unknown[0]; needsResolution = true; resolutionKind = 'zone'; warnings.push('The source time zone is ambiguous or unsupported. Enter the correct local date and time.') }
       if (range && matches.length === 1) {
         const [eh, em] = range[3].split(':').map(Number)
