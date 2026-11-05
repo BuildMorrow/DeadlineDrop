@@ -29,7 +29,7 @@ Install Node.js 20 or newer and npm, then run `npm install` and `npm run dev`. O
 
 ## Technology and roadmap
 
-React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is planned for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md).
+React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is planned for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md) and [master roadmap](docs/MASTER_ROADMAP.md).
 
 ## Privacy and security
 

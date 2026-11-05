@@ -14,3 +14,8 @@
 .bottom-note{background:#142433;border-color:#2b4052;color:#bacbd6}.bottom-note strong{color:#e2edf4}.bottom-note-icon{color:#9bc7e4}.site-footer{background:#0e1825;border-color:#223245}.site-footer>div{color:#a6b8c6}.site-footer a{color:#bed8e8}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline-color:#8ed0ff}
 @media(max-width:700px){.hero{padding:46px 0 42px}.hero h1{font-size:clamp(34px,9vw,44px)}.hero>p{font-size:15px}.empty-state{min-height:245px}.workspace-heading{align-items:flex-start}.top-privacy{display:none}}
 
+
+/* Keep controls readable and keyboard navigation visible on small screens. */
+.skip-link{position:absolute;left:12px;top:8px;z-index:10;transform:translateY(-160%);padding:10px 14px;border-radius:8px;background:#a7d8f5;color:#102334;font-weight:700}
+.skip-link:focus{transform:translateY(0)}
+@media(max-width:700px){.source-input,.field-input{font-size:16px}}

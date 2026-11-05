@@ -32,3 +32,12 @@ In-app browser on Windows, `Asia/Saigon`, local development server. These result
 | Download and import | Export confirmed event, import into a calendar | File contains correct instant and imports successfully | Export button clicked; downloaded file and external import not verified | NOT TESTED |
 | Mobile, keyboard and screen reader | Navigate and review at mobile size using keyboard and assistive technology | Controls readable, accessible, and focus visible | Not executed | NOT TESTED |
 | DST and cross-midnight in browser | Test using America/New_York and a cross-midnight range | Correct occurrence choice and end date required | Automated tests run separately; browser flow not executed | NOT TESTED |
+
+## Phase 2 observations — 2026-11-05
+
+| Case | Input | Expected behavior | Actual behavior | Status |
+| --- | --- | --- | --- | --- |
+| Keyboard skip link | Tab, then Enter from page start | Focus moves to the text input | Focus moved to the text input in the in-app browser on Windows | PASS |
+| Mobile input size | Open input at a narrow viewport | Text is at least 16px to avoid browser zoom | CSS updated; device/browser verification not performed | NOT TESTED |
+| Screen reader and full keyboard journey | Navigate event review and export | Controls and warnings are understandable and operable | Not performed | NOT TESTED |
+| External calendar import | Import downloaded ICS into a real calendar app | Correct date, time and title appear | Not performed | NOT TESTED |
