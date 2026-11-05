@@ -1,11 +1,21 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import axe from 'axe-core'
 import App from '../src/app/App'
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('event review interaction', () => {
+  it('has no automated accessibility violations in the initial and ambiguous review states', async () => {
+    const { container } = render(<App />)
+    const options = { rules: { 'color-contrast': { enabled: false } } }
+    expect((await axe.run(container, options)).violations).toEqual([])
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Workshop 2027-05-20 10:00-11:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect((await axe.run(container, options)).violations).toEqual([])
+  })
+
   it('moves focus to confirmation after resolving a time range', async () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => setTimeout(() => callback(0), 0))
     render(<App />)

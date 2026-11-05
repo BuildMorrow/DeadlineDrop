@@ -57,6 +57,8 @@ In-app browser, Windows, timezone Asia/Saigon, 320 × 720 viewport override. Thi
 
 The Vitest interoperability test parses generated all-day, timed and ranged events using `ical.js`, including Unicode and escaped text. This is a structural parser check, not evidence of importing into Google Calendar, Outlook or any other calendar application.
 
+The automated axe-core check covers the initial page and an unresolved range in jsdom. Color contrast is disabled because jsdom does not render a real page; this check cannot establish visual contrast, screen-reader behavior, physical-device usability, or full WCAG conformance.
+
 ## Keyboard range resolution — 2026-11-05
 
 In-app browser on Windows, timezone Asia/Saigon. Using the keyboard, the skip link moved focus to the input; after entering `Deadline 2027-05-20 10:00-11:00`, navigating to Find dates, and choosing Use as a time range, focus moved to Confirm event 1 after the fix. Before the fix focus returned to the page because the resolution control was removed. An automated interaction test also checks confirmation and that editing invalidates it. This is one keyboard path, not a complete screen-reader or physical-device audit.
