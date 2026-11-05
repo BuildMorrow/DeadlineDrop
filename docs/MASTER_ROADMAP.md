@@ -26,7 +26,7 @@ Phase 0 foundation and the v0.1 text workflow are implemented. The app runs loca
 3. **P0 accessibility and QA:** Check mobile at narrow and wide viewports, keyboard focus, labels, warnings, long text, and screen readers. Record actual results in `QA_CHECKLIST.md`.
 4. **P0 release:** Run clean install, lint, typecheck, tests in three timezones, build and audit; verify Pages asset paths and live URL only after approval; prepare release notes without creating a tag.
 5. **P1 OCR evaluation:** Compare client-side OCR engines, language resources, licensing, memory use, cold-start time and offline/network behavior before selecting a dependency; avoid uploading images.
-6. **P1 extraction:** Define a reference-date model, uncertainty states and a test corpus before implementing relative expressions or multiple dates per paragraph.
+6. **P1 extraction:** Expand the explicit-date regression corpus and refine the proposed reference-date model in `RELATIVE_DATES.md` before implementing relative expressions or multiple dates per paragraph.
 7. **P1 usability:** Apply accessible semantics, contrast, focus management and non-decorative visual design; verify with actual users and assistive technologies.
 8. **P2 privacy/security:** Treat image/PDF inputs as untrusted, limit resource use, avoid persistent content caches and third-party tracking. Optional AI requires separate approval.
 9. **P2 community:** Maintain issues and contributor guidance with accurate, non-fabricated screenshots and release history.
