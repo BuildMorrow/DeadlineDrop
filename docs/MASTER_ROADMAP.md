@@ -4,7 +4,7 @@ This document describes planned work, dependencies and release gates. Complexity
 
 ## Current audit
 
-Phase 0 foundation and the v0.1 text workflow are implemented. The app runs locally in React, TypeScript and Vite, uses Temporal for local timezone resolution, and generates ICS after review. It has deterministic parsing with known language and timezone limitations. An ISO timestamp offset fix and preliminary Phase 2 QA are being integrated into main. GitHub Pages deployment, real calendar imports, full keyboard/mobile QA and v0.1.0 release remain unverified. OCR, smart relative dates, PWA and PDF support are planned, not implemented.
+Phase 0 foundation and the v0.1 text workflow are implemented. The app runs locally in React, TypeScript and Vite, uses Temporal for local timezone resolution, and generates ICS after review. It has deterministic parsing with known language and timezone limitations. ISO timestamp and offset validation fixes are on main; Phase 2 QA is in progress. Representative ICS output is parsed in automated tests by an independent iCalendar parser. GitHub Pages deployment, real calendar imports, full keyboard/mobile QA and v0.1.0 release remain unverified. OCR, smart relative dates, PWA and PDF support are planned, not implemented.
 
 ## Milestones
 

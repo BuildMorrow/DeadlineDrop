@@ -52,3 +52,7 @@ In-app browser, Windows, timezone Asia/Saigon, 320 × 720 viewport override. Thi
 | Missing time and all-day confirmation | `Deadline 2027-05-25` | Confirmation blocked until a time or all-day is chosen | Confirmation initially disabled; selecting all-day enabled confirmation; confirmed event enabled export | PASS |
 | Mobile layout | Review the all-day event at 320px width | Relevant controls visible without horizontal overflow | Event card, warning, controls and export visible in viewport screenshot; physical-device testing not performed | PARTIAL |
 | Download and external calendar import | Export and import the confirmed event | Correct file and calendar entry | Export action was enabled; download content and import remain unverified | NOT TESTED |
+
+## Automated calendar parser check
+
+The Vitest interoperability test parses generated all-day, timed and ranged events using `ical.js`, including Unicode and escaped text. This is a structural parser check, not evidence of importing into Google Calendar, Outlook or any other calendar application.

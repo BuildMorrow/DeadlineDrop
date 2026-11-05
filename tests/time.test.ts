@@ -111,3 +111,12 @@ it('blocks malformed timezone offsets rather than interpreting a prefix', () => 
     expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
   }
 })
+
+
+it('blocks conflicting explicit time zones', () => {
+  for (const input of ['2027-05-20 14:30 +05:30 GMT', '2027-05-20 14:30 UTC+07 GMT-05', '2027-05-20T14:30Z UTC+07']) {
+    const [event] = extractCandidates(input)
+    expect(event.needsResolution, input).toBe(true)
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  }
+})
