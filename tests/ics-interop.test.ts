@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import ICAL from 'ical.js'
 import { extractCandidates } from '../src/features/extraction/extract'
-import { createCalendar } from '../src/features/calendar/ics'
+import { createCalendar, isValidEvent } from '../src/features/calendar/ics'
 import { resolveRange } from '../src/features/calendar/resolution'
 
 describe('calendar interoperability', () => {
@@ -27,3 +27,25 @@ describe('calendar interoperability', () => {
     expect(parsed.every(event => event.getFirstProperty('dtstamp'))).toBe(true)
   })
 })
+
+
+describe('calendar date boundaries', () => {
+  it('preserves a valid date even when the local timezone skipped that day', () => {
+    const [event] = extractCandidates('Deadline 2011-12-30')
+    expect(event.date).toBe('2011-12-30')
+    const calendar = createCalendar([{ ...event, allDay: true, confirmed: true }])
+    expect(calendar).toContain('DTSTART;VALUE=DATE:20111230\r\nDTEND;VALUE=DATE:20111231')
+  })
+  it('blocks an all-day end date beyond the four-digit ICS year', () => {
+    const [event] = extractCandidates('Deadline 9999-12-31')
+    expect(isValidEvent({ ...event, allDay: true })).toBe(false)
+    expect(() => createCalendar([{ ...event, allDay: true, confirmed: true }])).toThrow()
+  })
+})
+if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'America/New_York') {
+  it('rejects a timed event when UTC conversion crosses into year 10000', () => {
+    const [event] = extractCandidates('Meeting 9999-12-31 23:00')
+    expect(isValidEvent(event)).toBe(false)
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  })
+}

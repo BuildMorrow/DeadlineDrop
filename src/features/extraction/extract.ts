@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill'
 import { convertOffset, fields, type Choice } from '../calendar/time'
 
 export interface Candidate {
@@ -28,9 +29,8 @@ const datePattern = /\b(\d{4})-(\d{1,2})-(\d{1,2})(?=\b|T\d)|\b(\d{1,2})[.\x2f-]
 const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 const pad = (n: number) => String(n).padStart(2, '0')
 function validDate(y: number, m: number, d: number) {
-  const date = new Date(0)
-  date.setFullYear(y, m - 1, d)
-  return y >= 1000 && date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+  if (y < 1000) return false
+  try { Temporal.PlainDate.from({ year: y, month: m, day: d }, { overflow: 'reject' }); return true } catch { return false }
 }
 
 export function extractCandidates(text: string): Candidate[] {

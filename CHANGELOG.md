@@ -8,6 +8,7 @@
 - Fix ISO timestamps with a numeric offset and no seconds being interpreted in the browser timezone.
 - Block malformed, conflicting or unsupported timezone offsets for manual correction.
 - Validate representative ICS exports with an independent iCalendar parser in automated tests.
+- Keep all-day dates independent of local timezone transitions and reject dates outside the ICS year range.
 - Prepare manual GitHub Pages deployment and a public preview QA checklist.
 
 Image OCR and PDF support remain planned for later releases.

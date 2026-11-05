@@ -6,7 +6,7 @@ DeadlineDrop is a static React and TypeScript frontend. It keeps input and candi
 
 src/app owns the interface and review state; src/features/extraction detects explicit dates and times; src/features/calendar validates confirmed events and serializes ICS; src/styles holds shared styling. Tests live in tests, project documents in docs, and collaboration and CI configuration in .github.
 
-Text input -> deterministic local extraction with source context and warnings -> user editing and explicit confirmation -> ICS generation and browser download. Ambiguous or missing dates are left empty. Missing times are flagged for review. Temporal converts supported explicit offsets to browser-local values and detects nonexistent or repeated local times. Repeated times require an occurrence choice; unsupported zones and time ranges require explicit review. Timed events are exported as UTC instants, with an end only when supplied; all-day events use calendar dates. No duration is inferred.
+Text input -> deterministic local extraction with source context and warnings -> user editing and explicit confirmation -> ICS generation and browser download. Ambiguous or missing dates are left empty. Missing times are flagged for review. Temporal converts supported explicit offsets to browser-local values and detects nonexistent or repeated local times. Repeated times require an occurrence choice; unsupported zones and time ranges require explicit review. Timed events are exported as UTC instants, with an end only when supplied; all-day events use timezone-independent calendar dates and require an exclusive end date within the four-digit ICS year range. No duration is inferred.
 
 ## Testing and privacy
 
