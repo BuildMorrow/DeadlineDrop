@@ -41,3 +41,14 @@ In-app browser on Windows, `Asia/Saigon`, local development server. These result
 | Mobile input size | Open input at a narrow viewport | Text is at least 16px to avoid browser zoom | CSS updated; device/browser verification not performed | NOT TESTED |
 | Screen reader and full keyboard journey | Navigate event review and export | Controls and warnings are understandable and operable | Not performed | NOT TESTED |
 | External calendar import | Import downloaded ICS into a real calendar app | Correct date, time and title appear | Not performed | NOT TESTED |
+
+## Phase 2 follow-up — 2026-11-05
+
+In-app browser, Windows, timezone Asia/Saigon, 320 × 720 viewport override. This verifies a responsive browser viewport, not a physical phone or assistive technology.
+
+| Case | Input | Expected behavior | Actual behavior | Status |
+| --- | --- | --- | --- | --- |
+| Vietnamese input at 320px | `Nộp bài 25 tháng 5 năm 2027 lúc 14 giờ 30` | Candidate for May 25, 14:30 | Candidate showed 2027-05-25 14:30 | PASS |
+| Missing time and all-day confirmation | `Deadline 2027-05-25` | Confirmation blocked until a time or all-day is chosen | Confirmation initially disabled; selecting all-day enabled confirmation; confirmed event enabled export | PASS |
+| Mobile layout | Review the all-day event at 320px width | Relevant controls visible without horizontal overflow | Event card, warning, controls and export visible in viewport screenshot; physical-device testing not performed | PARTIAL |
+| Download and external calendar import | Export and import the confirmed event | Correct file and calendar entry | Export action was enabled; download content and import remain unverified | NOT TESTED |
