@@ -37,3 +37,11 @@ On Windows x64 with Node.js 20.20.0, two synthetic 1100 × 120 PNGs were generat
 The compressed `4.0.0_best_int` English and Vietnamese model files from npm data packages 1.0.0 measured 2,952,873 and 1,423,003 bytes respectively. The installed package metadata declares Apache-2.0 for Tesseract.js and its core, MIT for the data wrappers, and GPL-3.0 for Ocrad.js. Wrapper metadata does not establish the licenses of all bundled model files or transitive artifacts; those still require review.
 
 These two clean images do not establish real-world accuracy, browser compatibility, peak memory, network isolation, or low-quality image behavior. Tesseract.js merits further investigation; this is not a production selection. Browser tests with varied screenshots, exact asset license review, and a resource/privacy audit remain necessary before closing the evaluation.
+
+### Additional synthetic image checks
+
+Using the same machine and packages, one English and one Vietnamese line were rendered in Arial at 28px on 1000 × 100 PNGs. Three variants per line were tested: clear, Gaussian blur radius 1.3, and four-degree rotation. Tesseract.js returned the exact source text for all six images. Ocrad.js made character errors in all six, including errors in dates as well as Vietnamese diacritics. This tiny synthetic set is not a representative accuracy estimate; actual screenshots, compression, backgrounds and handwriting may behave differently.
+
+In these single local Node runs, worker creation took about 0.27s per language. Reported process RSS ranged from 88 to 112 MiB during the runs; this includes the Node runtime and both engines, is not isolated peak memory, and does not predict browser memory. Recognition timings combined both engines and file reading and should not be compared as individual engine speeds.
+
+Uncompressed installed artifacts measured 62,961 bytes for `tesseract.min.js`, 111,307 bytes for its worker, and 2,855,361 bytes for one LSTM WASM variant; other core variants differ and may be required for browser compatibility. The Ocrad.js file measured 1,154,934 bytes. These exclude the language files and transport compression; actual app bundle and network behavior remain unmeasured. The OCR prototype is not part of the application and has not established an editable browser review flow or offline operation.
