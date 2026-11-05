@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { extractCandidates } from '../src/features/extraction/extract'
 import { createCalendar } from '../src/features/calendar/ics'
 
@@ -43,4 +43,32 @@ describe('explicit date extraction regression corpus', () => {
       expect(extractCandidates(input)).toEqual([])
     },
   )
+
+  it.each([
+    ['Please submit the report on 2027-05-20 at 10:00 and attend the interview on 2027-05-21 at 14:00.', ['2027-05-20', '2027-05-21']],
+    ['Nộp bài ngày 25 tháng 5 năm 2027 lúc 14:30 và thi ngày 26 tháng 5 năm 2027 lúc 08:00.', ['2027-05-25', '2027-05-26']],
+  ])('requires manual resolution for multiple dates in one paragraph: %s', (input, dates) => {
+    const events = extractCandidates(input)
+    expect(events.map(event => event.date)).toEqual(dates)
+    for (const event of events) {
+      expect(event.needsResolution).toBe(true)
+      expect(event.time).toBe('')
+      expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+    }
+  })
+
+  it.each([
+    ['Submit the report tomorrow at 5 pm.', '2027-12-31T12:00:00Z'],
+    ['Nộp bài ngày mai lúc 14:30.', '2028-02-28T12:00:00Z'],
+    ['Meet next Monday at 09:00.', '2027-11-07T05:30:00Z'],
+    ['Họp thứ Hai tuần sau lúc 9 giờ.', '2027-11-07T06:30:00Z'],
+  ])('does not infer a relative date from the system clock: %s', (input, reference) => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date(reference))
+      expect(extractCandidates(input)).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
