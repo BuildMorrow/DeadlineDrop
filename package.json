@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-ocr.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/prepare-ocr.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -13,8 +15,11 @@
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/vie": "1.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tesseract.js": "7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

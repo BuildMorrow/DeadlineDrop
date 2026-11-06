@@ -16,7 +16,7 @@ Non-functional requirements: local processing, no mandatory paid AI APIs, access
 
 ## MVP boundaries
 
-Text input only. Image OCR, PDFs, checklists and optional AI are later milestones. The current implementation supports the text workflow with limited deterministic parsing; image and document input remain future work.
+The v0.1 MVP is text input only. An experimental local image OCR workflow is under development for v0.2; PDF input, checklists and optional AI remain future work. Extraction remains limited and deterministic.
 
 ## Success criteria
 

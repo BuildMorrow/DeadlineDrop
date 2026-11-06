@@ -1,6 +1,6 @@
 # Local OCR evaluation for the image milestone
 
-Status: research only. Image upload and OCR are not implemented.
+Status: an experimental local image OCR workflow is implemented. It has not passed all production gates listed below.
 
 ## Candidate
 
@@ -16,7 +16,7 @@ Sources: [Tesseract.js local installation](https://github.com/naptha/tesseract.j
 - Test startup and recognition failures, slow loading, cancellation, invalid formats, and low quality images. Review worker error handling and memory costs before choosing a version.
 - Show extracted text for user correction before the existing deadline review. Do not claim perfect OCR or offline availability without end-to-end verification.
 
-A separate local sample-image prototype and browser privacy/network inspection are required before enabling the feature. Phase 2 calendar import and accessibility checks remain open.
+The feature uses same-origin resources; a complete browser privacy/network inspection and broader accessibility checks remain required before release.
 
 ## Candidate comparison and decision criteria
 

@@ -8,9 +8,9 @@ The v0.1 core workflow is implemented with limited deterministic parsing and nee
 - Review, edit, remove and select candidates before export.
 - All-day and timed events and ICS export.
 
-## v0.2 — Image to calendar
+## v0.2 — Image to calendar (in progress)
 
-- Image and screenshot input and OCR, feeding the existing extraction workflow.
+- Experimental local image OCR with editable recognized text, feeding the existing extraction workflow; broader accuracy, browser, privacy and accessibility checks remain.
 
 ## v1.0 — Document to calendar
 

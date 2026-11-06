@@ -8,6 +8,8 @@ DeadlineDrop is a free, open-source, privacy-first tool for turning scheduling i
 
 The v0.1 text workflow is available for initial use: paste English or Vietnamese text, review and edit candidate events, confirm them, and export an ICS file. Processing happens locally in your browser. This is deterministic, limited parsing, not general language understanding: check every result against the original.
 
+An experimental image-to-text flow is available: choose a PNG, JPEG, or WebP image (up to 8 MB and 16 megapixels), select English or Vietnamese, and review the recognized text before replacing the input. OCR can misread text and dates. The image stays in the browser; OCR code and language models are downloaded from the same site when used. Initial loading may be slow and offline availability is not guaranteed.
+
 Use one event per line and include a four-digit year. Supported dates include ISO (2027-05-25), numeric dates (25/05/2027 or 05/25/2027), Vietnamese (25 tháng 5 năm 2027), and English month names (May 25, 2027). Ambiguous numeric dates require manual entry. Times include 14:30, 2:30 pm and 14 giờ 30. A missing time requires an explicit all-day confirmation or a time. Supported timezone clues include UTC/GMT, UTC/GMT with numeric offsets (for example GMT+7 or UTC-05:00), positive numeric offsets after the time, and ISO timestamps with optional `00` seconds and an offset or Z. The result is converted to the browser's displayed timezone and offset. A bare negative offset such as `14:30-05:00` is indistinguishable from a time range: choose the intended interpretation before confirming. Ranges require explicit selection and an end date; cross-midnight ranges require correction of that end date. Malformed offsets, conflicting timezone expressions, and ISO offsets without a colon are flagged for manual correction. IANA zone names and common timezone abbreviations such as PST are not interpreted: edit the local date and time to resolve them. Detection cannot cover every natural-language timezone reference; check the source carefully. Repeated daylight-saving times require an occurrence choice; nonexistent times must be corrected. Relative dates, date ranges and multiple events on one line are not reliably interpreted. Timed events without an end time have no inferred duration. Manual browser and calendar import checks are listed in [QA checklist](docs/QA_CHECKLIST.md).
 
 ## How to use
@@ -29,7 +31,7 @@ Install Node.js 20.19 or newer within the Node 20 LTS line (or Node 22.13+ / 24+
 
 ## Technology and roadmap
 
-React, TypeScript, Vite, Tailwind CSS, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is planned for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md) and [master roadmap](docs/MASTER_ROADMAP.md).
+React, TypeScript, Vite, Tailwind CSS, Tesseract.js, Vitest, ESLint and GitHub Actions. The app can be hosted as a static website. Image OCR is experimental for v0.2; PDF support, checklists and optional AI are planned for v1.0. See the [roadmap](docs/ROADMAP.md) and [master roadmap](docs/MASTER_ROADMAP.md).
 
 ## Privacy and security
 
