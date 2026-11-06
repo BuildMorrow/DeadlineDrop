@@ -23,7 +23,7 @@ A separate local sample-image prototype and browser privacy/network inspection a
 - **Tesseract.js**: browser worker architecture with separate worker, core and language resources. The [project documentation](https://github.com/naptha/tesseract.js/blob/master/docs/local-installation.md) explains local paths; the [project license](https://github.com/naptha/tesseract.js/blob/master/LICENSE.md) and each distributed model and core dependency must be checked at the exact selected version. Its English/Vietnamese models and browser performance have not yet been evaluated in this repository.
 - **Ocrad.js**: browser-oriented OCR with no separately trained model download according to its [project documentation](https://github.com/antimatter15/ocrad.js). Its repository states GPL-3.0 licensing, and Vietnamese accuracy and compatibility with this project's distribution requirements have not been established. A smaller download alone is not sufficient to select it.
 
-No engine is selected for production yet. Compare both using locally generated, non-sensitive Vietnamese and English examples and record accuracy, time, memory, download sizes, supported browsers, failure behavior and complete license notices. Until this is done, OCR remains planned and the evaluation issue stays open.
+No engine is selected for production yet. The comparison below uses locally generated, non-sensitive Vietnamese and English examples and records measured results and outstanding gaps. OCR remains planned; complete license notices, representative accuracy, browser support, and failure handling must be verified before shipping it.
 
 ## Initial local experiment — 2026-11-05
 

@@ -66,3 +66,9 @@ The automated axe-core check covers the initial page and an unresolved range in 
 ## Keyboard range resolution — 2026-11-05
 
 In-app browser on Windows, timezone Asia/Saigon. Using the keyboard, the skip link moved focus to the input; after entering `Deadline 2027-05-20 10:00-11:00`, navigating to Find dates, and choosing Use as a time range, focus moved to Confirm event 1 after the fix. Before the fix focus returned to the page because the resolution control was removed. An automated interaction test also checks confirmation and that editing invalidates it. This is one keyboard path, not a complete screen-reader or physical-device audit.
+
+## Responsive content and sampled contrast — 2026-11-06
+
+On Windows in the in-app browser, with a 320 × 720 viewport override, both a long Vietnamese sentence and an 800-character unbroken synthetic title produced a review card without document-level horizontal overflow (measured document and viewport widths were both 305 CSS pixels). This is a simulated viewport, not a physical device test.
+
+Foreground and nearest opaque background colors were read from the rendered page and WCAG contrast ratios calculated for a sample of text: heading 16.04:1, hero body 10.08:1, field label 9.18:1, input 16.16:1, hovered primary button 11.20:1, bottom note 9.48:1, source text 10.49:1 and event details 9.16:1. These sampled values exceed 4.5:1; they do not constitute a complete contrast audit of every state or a screen-reader test. Full keyboard and assistive-technology checks remain outstanding.
