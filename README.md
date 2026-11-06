@@ -12,7 +12,7 @@ Use one event per line and include a four-digit year. Supported dates include IS
 
 ## How to use
 
-Paste a message containing explicit dates, preferably one event per line, and select **Find dates**. Review the original text and each candidate, edit any details, resolve warnings and confirm the events you want. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time.
+Paste a message containing explicit dates, preferably one event per line, and select **Find dates**. Review the original text and each candidate, edit any details, resolve warnings and confirm the events you want. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time, but calendar applications may add one on import; check the imported event.
 
 ## Getting started
 
