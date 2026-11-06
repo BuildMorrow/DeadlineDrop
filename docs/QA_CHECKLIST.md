@@ -76,3 +76,7 @@ Foreground and nearest opaque background colors were read from the rendered page
 ## Keyboard confirmation and export — 2026-11-06
 
 In-app browser on Windows, Asia/Saigon. Keyboard-only: Tab to the skip link, Enter, type `Workshop 2027-05-20 10:00-11:00`, Tab to Find dates and activate, navigate to Use as a time range, activate, then confirm. Before the fix, confirmation disabled its focused button and focus fell to the document. After the fix, the confirmed button retained focus, exposed its disabled state through `aria-disabled`, and Tab moved to Export .ics; Enter activated export. The browser reported no visible error, but the downloaded file was not independently inspected in this run. This is a tested path, not a screen-reader audit or a guarantee for every keyboard workflow.
+
+## Deferred accessibility verification
+
+On 2026-11-06, the project owner chose to close issue #5 without completing the screen-reader test. Narrator/NVDA speech output has not been verified, and physical-device and comprehensive keyboard and contrast checks remain incomplete. Closing the issue is not an accessibility certification; revisit these checks during the planned accessibility phase.
