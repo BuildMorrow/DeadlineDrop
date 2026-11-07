@@ -1,0 +1,14 @@
+DeadlineDrop includes third-party OCR components:
+
+Tesseract.js 7.0.0 and Tesseract.js-core 7.0.0: Apache License 2.0.
+Sources: https://github.com/naptha/tesseract.js and https://github.com/naptha/tesseract.js-core
+
+English and Vietnamese 4.0.0_best_int trained data: distributed by the
+Apache-2.0-licensed naptha/tessdata repository as integerized Tessdata Best.
+Source: https://github.com/naptha/tessdata
+The @tesseract.js-data/eng and @tesseract.js-data/vie 1.0.0 npm package
+metadata declares MIT for the package wrappers.
+
+The Apache License text is available at ocr/APACHE-2.0.txt after building.
+The compiled OCR core can include other third-party components. A complete
+transitive notice audit remains a release prerequisite.

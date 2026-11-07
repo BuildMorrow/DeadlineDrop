@@ -6,6 +6,7 @@ const destination = 'public/ocr'
 mkdirSync(join(destination, 'core'), { recursive: true })
 mkdirSync(join(destination, 'models'), { recursive: true })
 copyFileSync('node_modules/tesseract.js/dist/worker.min.js', join(destination, 'worker.min.js'))
+copyFileSync('node_modules/tesseract.js/LICENSE.md', join(destination, 'APACHE-2.0.txt'))
 for (const file of readdirSync('node_modules/tesseract.js-core')) {
   if (/^tesseract-core.*\.wasm\.js$/.test(file)) copyFileSync(join('node_modules/tesseract.js-core', file), join(destination, 'core', file))
 }

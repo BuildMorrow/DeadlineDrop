@@ -41,7 +41,7 @@ For vulnerability reporting, see [SECURITY.md](SECURITY.md).
 
 ## Contributing and license
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Licensed under the [MIT License](LICENSE).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). DeadlineDrop is licensed under the [MIT License](LICENSE); OCR components have separate [third-party notices](public/third-party-notices.txt).
 
 ## Screenshots
 

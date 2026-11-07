@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ImageToText } from '../src/features/ocr/ImageToText'
 import { createWorker } from 'tesseract.js'
+import axe from 'axe-core'
 import { imageDimensions, MAX_IMAGE_BYTES, validImageDimensions, validateImage } from '../src/features/ocr/validateImage'
 
 const pngHeader = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 100, 0, 0, 0, 100])
@@ -110,6 +111,13 @@ describe('image input', () => {
     fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     const result = await screen.findByLabelText('RECOGNIZED TEXT')
+    const options = vi.mocked(createWorker).mock.calls[0][2]!
+    const expectedBase = new URL(import.meta.env.BASE_URL, window.location.href)
+    expect(options.workerPath).toBe(new URL('ocr/worker.min.js', expectedBase).href)
+    expect(options.corePath).toBe(new URL('ocr/core', expectedBase).href)
+    expect(options.langPath).toBe(new URL('ocr/models', expectedBase).href)
+    expect(options.cacheMethod).toBe('none')
+    expect(options.workerBlobURL).toBe(false)
     expect(useText).not.toHaveBeenCalled()
     fireEvent.change(result, { target: { value: '' } })
     expect(screen.getByLabelText('RECOGNIZED TEXT')).toBeTruthy()
@@ -118,6 +126,18 @@ describe('image input', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Use this text' }))
     expect(useText).toHaveBeenCalledWith('Corrected 2027-05-21')
     await waitFor(() => expect(mockWorker.terminate).toHaveBeenCalled())
+  })
+  it('has no detected accessibility violations with OCR controls and a result', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
+    mockWorker.recognize.mockResolvedValue({ data: { text: 'Deadline 2027-05-20' } })
+    mockWorker.terminate.mockResolvedValue(undefined)
+    const { container } = render(<ImageToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from an image'))
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
+    fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
+    await screen.findByLabelText('RECOGNIZED TEXT')
+    const result = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } })
+    expect(result.violations).toEqual([])
   })
   it('rejects large decoded images before starting OCR and permits a retry', async () => {
     const bitmap = { width: 4001, height: 4000, close: vi.fn() }
