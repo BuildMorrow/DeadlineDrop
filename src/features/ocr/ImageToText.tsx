@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { Worker } from 'tesseract.js'
 import { imageDimensions, validImageDimensions, validateImage } from './validateImage'
 
@@ -11,18 +11,33 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
   const [busy, setBusy] = useState(false)
   const generation = useRef(0)
   const worker = useRef<Worker | null>(null)
+  const readButton = useRef<HTMLButtonElement>(null)
+  const cancelButton = useRef<HTMLButtonElement>(null)
+  const returnFocus = useRef(false)
   useEffect(() => () => { generation.current++; void worker.current?.terminate().catch(() => {}) }, [])
+  useLayoutEffect(() => {
+    if (!busy && returnFocus.current) {
+      returnFocus.current = false
+      readButton.current?.focus()
+    }
+  }, [busy])
+
+  function finish() {
+    returnFocus.current = document.activeElement === cancelButton.current
+    setBusy(false)
+  }
 
   function cancel() {
     generation.current++
     const current = worker.current
     worker.current = null
     if (current) void current.terminate().catch(() => {})
-    setBusy(false)
+    finish()
     setStatus('Recognition cancelled.')
   }
 
   async function recognize() {
+    if (busy) return
     if (!file) { setStatus('Choose an image first.'); return }
     const error = validateImage(file)
     if (error) { setStatus(error); return }
@@ -55,7 +70,7 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
     } finally {
       if (current && worker.current === current) worker.current = null
       if (current) await current.terminate().catch(() => {})
-      if (run === generation.current) setBusy(false)
+      if (run === generation.current) finish()
     }
   }
 
@@ -63,7 +78,7 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
     <p>Images stay on your device. OCR resources download from this site when needed. Review the text for mistakes. Using it replaces your message and clears the current event review.</p>
     <label className="field-label">IMAGE (PNG, JPEG, WEBP; MAX 8 MB)<input className="field-input" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { setFile(e.target.files?.[0] ?? null); setText(''); setHasResult(false); setStatus('') }} /></label>
     <label className="field-label">IMAGE LANGUAGE<select className="field-input" value={language} disabled={busy} onChange={e => { setLanguage(e.target.value); setText(''); setHasResult(false); setStatus('') }}><option value="eng">English</option><option value="vie">Vietnamese</option></select></label>
-    <div className="resolution-actions"><button type="button" className="button button-outline" disabled={busy} onClick={() => void recognize()}>Read image</button>{busy && <button type="button" className="button button-outline" onClick={cancel}>Cancel</button>}</div>
+    <div className="resolution-actions"><button ref={readButton} type="button" className="button button-outline" aria-disabled={busy} onClick={() => void recognize()}>Read image</button>{busy && <button ref={cancelButton} type="button" className="button button-outline" onClick={cancel}>Cancel</button>}</div>
     <p role="status" aria-live="polite">{status}</p>
     {hasResult && <><label className="field-label">RECOGNIZED TEXT<textarea className="source-input" value={text} onChange={e => setText(e.target.value)} /></label><button type="button" className="button button-primary" disabled={!text.trim() || busy} onClick={() => onUseText(text)}>Use this text</button></>}
   </details>

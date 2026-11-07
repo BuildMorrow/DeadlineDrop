@@ -80,3 +80,7 @@ In-app browser on Windows, Asia/Saigon. Keyboard-only: Tab to the skip link, Ent
 ## Deferred accessibility verification
 
 On 2026-11-06, the project owner chose to close issue #5 without completing the screen-reader test. Narrator/NVDA speech output has not been verified, and physical-device and comprehensive keyboard and contrast checks remain incomplete. Closing the issue is not an accessibility certification; revisit these checks during the planned accessibility phase.
+
+## OCR keyboard focus — 2026-11-07
+
+In the Windows in-app browser, a synthetic PNG was selected and recognition was started with Enter. Focus stayed on Read image while it was marked unavailable; once recognition completed, Tab moved to the recognized-text editor. An automated component test separately checks that cancel returns focus to Read image and repeated activation does not start a second request. A full keyboard journey and screen-reader speech output were not verified in this run.
