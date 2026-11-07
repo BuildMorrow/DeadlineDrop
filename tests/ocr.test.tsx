@@ -3,7 +3,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ImageToText } from '../src/features/ocr/ImageToText'
 import { createWorker } from 'tesseract.js'
-import { MAX_IMAGE_BYTES, validateImage } from '../src/features/ocr/validateImage'
+import { imageDimensions, MAX_IMAGE_BYTES, validImageDimensions, validateImage } from '../src/features/ocr/validateImage'
+
+const pngHeader = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 100, 0, 0, 0, 100])
+const sampleFile = (header = pngHeader) => {
+  const file = new File([header], 'sample.png', { type: 'image/png' })
+  Object.defineProperty(file, 'arrayBuffer', { value: async () => header.buffer.slice(0) })
+  return file
+}
 
 const mockWorker = { recognize: vi.fn(), terminate: vi.fn() }
 vi.mock('tesseract.js', () => ({ createWorker: vi.fn(async () => mockWorker) }))
@@ -14,6 +21,53 @@ describe('image input', () => {
     expect(validateImage({ type: 'image/png', size: 0 })).toContain('8 MB')
     expect(validateImage({ type: 'image/jpeg', size: MAX_IMAGE_BYTES + 1 })).toContain('8 MB')
     expect(validateImage({ type: 'image/webp', size: 100 })).toBe('')
+  })
+  it('reads PNG, JPEG and WebP dimensions without decoding image data', () => {
+    expect(imageDimensions(pngHeader, 'image/png')).toEqual({ width: 100, height: 100 })
+    const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, 0xc0, 0, 8, 8, 0, 40, 0, 80, 1])
+    expect(imageDimensions(jpeg, 'image/jpeg')).toEqual({ width: 80, height: 40 })
+    const webp = new Uint8Array(30)
+    webp.set([82, 73, 70, 70], 0); webp.set([87, 69, 66, 80], 8); webp.set([86, 80, 56, 88], 12)
+    webp[24] = 99; webp[27] = 49
+    expect(imageDimensions(webp, 'image/webp')).toEqual({ width: 100, height: 50 })
+    const lossless = webp.slice(); lossless.set([86, 80, 56, 76], 12); lossless[20] = 0x2f
+    new DataView(lossless.buffer).setUint32(21, 99 | (49 << 14), true)
+    expect(imageDimensions(lossless, 'image/webp')).toEqual({ width: 100, height: 50 })
+    const lossy = webp.slice(); lossy.set([86, 80, 56, 32], 12); lossy.set([0x9d, 1, 0x2a], 23)
+    new DataView(lossy.buffer).setUint16(26, 100, true); new DataView(lossy.buffer).setUint16(28, 50, true)
+    expect(imageDimensions(lossy, 'image/webp')).toEqual({ width: 100, height: 50 })
+    expect(imageDimensions(pngHeader.slice(0, 20), 'image/png')).toBeNull()
+    expect(imageDimensions(pngHeader, 'image/jpeg')).toBeNull()
+    expect(validImageDimensions({ width: 4000, height: 4000 })).toBe(true)
+    expect(validImageDimensions({ width: 4001, height: 4000 })).toBe(false)
+    expect(validImageDimensions({ width: 0, height: 1 })).toBe(false)
+  })
+  it('rejects oversized image headers before decoding', async () => {
+    const header = pngHeader.slice()
+    new DataView(header.buffer).setUint32(16, 4001)
+    new DataView(header.buffer).setUint32(20, 4000)
+    const file = sampleFile(header)
+    const decode = vi.fn()
+    vi.stubGlobal('createImageBitmap', decode)
+    render(<ImageToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from an image'))
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [file] } })
+    fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Image dimensions exceed 16 megapixels.'))
+    expect(decode).not.toHaveBeenCalled()
+    expect(createWorker).not.toHaveBeenCalled()
+  })
+  it('rejects a forged or truncated header before decoding', async () => {
+    const file = sampleFile(pngHeader.slice(0, 16))
+    const decode = vi.fn()
+    vi.stubGlobal('createImageBitmap', decode)
+    render(<ImageToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from an image'))
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [file] } })
+    fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
+    await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
+    expect(decode).not.toHaveBeenCalled()
+    expect(createWorker).not.toHaveBeenCalled()
   })
   it('requires an image and does not send text to the main input', () => {
     const useText = vi.fn()
@@ -30,7 +84,7 @@ describe('image input', () => {
     const useText = vi.fn()
     render(<ImageToText onUseText={useText} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['image'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     const result = await screen.findByLabelText('RECOGNIZED TEXT')
     expect(useText).not.toHaveBeenCalled()
@@ -47,7 +101,7 @@ describe('image input', () => {
     vi.stubGlobal('createImageBitmap', vi.fn(async () => bitmap))
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['image'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Image dimensions exceed 16 megapixels.'))
     expect(bitmap.close).toHaveBeenCalled()
@@ -58,7 +112,7 @@ describe('image input', () => {
     vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('invalid image')))
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['bad'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
     expect(createWorker).not.toHaveBeenCalled()
@@ -70,7 +124,7 @@ describe('image input', () => {
     mockWorker.terminate.mockResolvedValue(undefined)
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['image'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
     await waitFor(() => expect(mockWorker.terminate).toHaveBeenCalled())
@@ -84,7 +138,7 @@ describe('image input', () => {
     vi.mocked(createWorker).mockImplementationOnce(() => new Promise(resolve => { finish = resolve as typeof finish }))
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['image'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(createWorker).toHaveBeenCalled())
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
@@ -100,7 +154,7 @@ describe('image input', () => {
     mockWorker.terminate.mockResolvedValue(undefined)
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
-    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [new File(['image'], 'sample.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(mockWorker.recognize).toHaveBeenCalled())
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))

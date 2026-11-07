@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Worker } from 'tesseract.js'
-import { validateImage } from './validateImage'
+import { imageDimensions, validImageDimensions, validateImage } from './validateImage'
 
 export function ImageToText({ onUseText }: { onUseText: (text: string) => void }) {
   const [file, setFile] = useState<File | null>(null)
@@ -30,10 +30,14 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
     setText(''); setHasResult(false); setBusy(true); setStatus('Loading local OCR resources and reading the image…')
     let current: Worker | null = null
     try {
+      const dimensions = imageDimensions(new Uint8Array(await file.arrayBuffer()), file.type)
+      if (!dimensions) throw new Error('Unsupported or invalid image header.')
+      if (!validImageDimensions(dimensions)) throw new Error('Image dimensions exceed 16 megapixels.')
+      if (run !== generation.current) return
       const bitmap = await createImageBitmap(file)
-      const pixels = bitmap.width * bitmap.height
+      const decodedDimensions = { width: bitmap.width, height: bitmap.height }
       bitmap.close()
-      if (pixels > 16_000_000) throw new Error('Image dimensions exceed 16 megapixels.')
+      if (!validImageDimensions(decodedDimensions)) throw new Error('Image dimensions exceed 16 megapixels.')
       if (run !== generation.current) return
       const { createWorker } = await import('tesseract.js')
       const base = new URL(import.meta.env.BASE_URL, window.location.href)
