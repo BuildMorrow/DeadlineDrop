@@ -1,6 +1,6 @@
 # Roadmap
 
-The v0.1 core workflow is implemented with limited deterministic parsing and needs further usability and extraction evaluation. Later milestones are planned.
+The v0.1 text workflow and v0.2 image workflow are implemented with limited deterministic parsing. Public release verification remains outstanding; later milestones are planned.
 
 ## v0.1 — Text to calendar
 
@@ -8,9 +8,10 @@ The v0.1 core workflow is implemented with limited deterministic parsing and nee
 - Review, edit, remove and select candidates before export.
 - All-day and timed events and ICS export.
 
-## v0.2 — Image to calendar (in progress)
+## v0.2 — Image to calendar (implementation complete)
 
-- Experimental local image OCR with editable recognized text, feeding the existing extraction workflow; broader accuracy, browser, privacy and accessibility checks remain.
+- Local English and Vietnamese OCR for PNG, JPEG and WebP, with editable recognized text feeding the existing review and export workflow.
+- The owner has deferred broader accuracy, browser, privacy-network, accessibility and OCR-core licensing verification; these remain unresolved release risks, not completed checks.
 
 ## v1.0 — Document to calendar
 

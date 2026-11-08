@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — v0.2 image workflow
+
+- Read supported PNG, JPEG and WebP images locally using English or Vietnamese OCR.
+- Edit recognized text before transferring it to the existing event review and export workflow.
+- Validate image size and dimensions, handle errors and cancellation, and stop stalled OCR startup.
+- Add automated synthetic OCR samples and third-party license notices; broader browser, network privacy and compiled-core license verification remain outstanding.
+
 ## Unreleased — v0.1.0 preparation
 
 - Extract candidate dates and times from English and Vietnamese text locally.
@@ -12,4 +19,4 @@
 - Keep all-day dates independent of local timezone transitions and reject dates outside the ICS year range.
 - Prepare manual GitHub Pages deployment and a public preview QA checklist.
 
-Image OCR and PDF support remain planned for later releases.
+PDF support remains planned for a later release.

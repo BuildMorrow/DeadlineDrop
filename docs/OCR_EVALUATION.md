@@ -1,6 +1,6 @@
 # Local OCR evaluation for the image milestone
 
-Status: an experimental local image OCR workflow is implemented. It has not passed all production gates listed below.
+Status: the v0.2 local image OCR implementation is complete. The owner chose to defer the outstanding production verification described below; those checks and licensing questions remain unresolved.
 
 ## Candidate
 
@@ -23,7 +23,7 @@ The feature uses same-origin resources; a complete browser privacy/network inspe
 - **Tesseract.js**: browser worker architecture with separate worker, core and language resources. The [project documentation](https://github.com/naptha/tesseract.js/blob/master/docs/local-installation.md) explains local paths; see the experiments and remaining licensing and performance checks below.
 - **Ocrad.js**: browser-oriented OCR with no separately trained model download according to its [project documentation](https://github.com/antimatter15/ocrad.js). Its repository states GPL-3.0 licensing, and Vietnamese accuracy and compatibility with this project's distribution requirements have not been established. A smaller download alone is not sufficient to select it.
 
-No engine is selected for production yet. The comparison below uses locally generated, non-sensitive Vietnamese and English examples and records measured results and outstanding gaps. OCR remains planned; complete license notices, representative accuracy, browser support, and failure handling must be verified before shipping it.
+Tesseract.js is used in the implemented workflow. The historical comparison below uses locally generated, non-sensitive Vietnamese and English examples and records measured results and outstanding gaps. Complete license notices, representative accuracy and broader browser support remain unverified.
 
 ## Initial local experiment — 2026-11-05
 
@@ -68,7 +68,7 @@ Integration tests now run the real Tesseract.js engine in Node using local model
 
 The integration corpus includes the original clear PNG for each language, a mildly blurred PNG (Gaussian radius 0.8), a JPEG compressed at quality 50, and a WebP at quality 75. In the automated runs all eight synthetic samples yielded the expected explicit date and time and required confirmation before ICS export. These test fixtures use simple, high-contrast text; they do not establish accuracy on real screenshots, small text, complex layouts, handwriting, or severely degraded images.
 
-For the pinned Tesseract.js 7.0.0 source, the browser image loader reads a `File` or `Blob` using `FileReader`; its `fetch` branch applies to image URL strings. DeadlineDrop passes a `File`, sets explicit same-origin worker, core and language paths, and sets `cacheMethod: 'none'`. This is a source-level inspection and configuration check, not a substitute for observing network requests in a real browser. Hosting the site still involves normal network requests for application and OCR assets.
+DeadlineDrop reads the selected `File` as bytes and passes those bytes to the local worker. It sets explicit same-origin worker, core and language paths and disables language caching. This is a source-level inspection and configuration check, not a substitute for observing network requests in a real browser. Hosting the site still involves normal network requests for application and OCR assets.
 
 Tesseract.js 7.0.0 can leave worker creation pending after initialization errors. DeadlineDrop owns the browser Worker directly through a small adapter for the pinned Tesseract.js 7 worker protocol, allowing cancellation, errors and the two-minute startup timeout to terminate it even before initialization completes. Automated lifecycle tests cover a stalled worker, failure and cancellation. On 2026-11-08, the adapter recognized a synthetic English JPEG and Vietnamese WebP in the Windows in-app browser. This protocol is internal to Tesseract.js: upgrades require reviewing the adapter and rerunning real browser OCR tests. Broader browser and device coverage remains necessary.
 

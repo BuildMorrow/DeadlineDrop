@@ -40,6 +40,14 @@ describe('OCR worker lifecycle', () => {
     await expect(startup).rejects.toThrow('model failed')
     expect(FakeWorker.latest.terminate).toHaveBeenCalledOnce()
   })
+  it('terminates when the native worker raises an error', async () => {
+    vi.stubGlobal('Worker', FakeWorker)
+    const startup = startWorker('eng', options)
+    const worker = FakeWorker.latest
+    worker.onerror?.({ message: 'worker script failed' } as ErrorEvent)
+    await expect(startup).rejects.toThrow('worker script failed')
+    expect(worker.terminate).toHaveBeenCalledOnce()
+  })
   it('passes image bytes to the worker and returns recognized text', async () => {
     vi.stubGlobal('Worker', FakeWorker)
     const startup = startWorker('eng', options)
