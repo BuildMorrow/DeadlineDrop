@@ -10,5 +10,6 @@ The @tesseract.js-data/eng and @tesseract.js-data/vie 1.0.0 npm package
 metadata declares MIT for the package wrappers.
 
 The Apache License text is available at ocr/APACHE-2.0.txt after building.
-The compiled OCR core can include other third-party components. A complete
-transitive notice audit remains a release prerequisite.
+Source license texts for libraries referenced by the compiled OCR core are
+included in ocr-licenses/README.txt and the adjacent files. A complete audit of
+compiler/runtime code included in the WASM remains a release prerequisite.

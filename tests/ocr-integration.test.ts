@@ -7,8 +7,14 @@ import { createCalendar, isValidEvent } from '../src/features/calendar/ics'
 describe('local OCR to calendar integration', () => {
   it.each([
     { language: 'eng', image: 'ocr-sample.png', date: '2027-05-20', time: '14:30' },
+    { language: 'eng', image: 'ocr-en-compressed.jpg', date: '2027-05-20', time: '14:30' },
+    { language: 'eng', image: 'ocr-en-blur.png', date: '2027-05-20', time: '14:30' },
+    { language: 'eng', image: 'ocr-en.webp', date: '2027-05-20', time: '14:30' },
     { language: 'vie', image: 'ocr-vietnamese.png', date: '2027-05-25', time: '14:30' },
-  ])('recognizes and reviews a synthetic $language image with local assets', async ({ language, image, date, time }) => {
+    { language: 'vie', image: 'ocr-vi-compressed.jpg', date: '2027-05-25', time: '14:30' },
+    { language: 'vie', image: 'ocr-vi-blur.png', date: '2027-05-25', time: '14:30' },
+    { language: 'vie', image: 'ocr-vi.webp', date: '2027-05-25', time: '14:30' },
+  ])('recognizes and reviews $image with local $language assets', async ({ language, image, date, time }) => {
     const worker = await createWorker(language, 1, {
       langPath: resolve(`node_modules/@tesseract.js-data/${language}/4.0.0_best_int`),
       cacheMethod: 'none',
