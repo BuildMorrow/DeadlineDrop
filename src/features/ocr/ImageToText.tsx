@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { Worker } from 'tesseract.js'
+import type { OcrWorker } from './startWorker'
 import { imageDimensions, validImageDimensions, validateImage } from './validateImage'
 
 export function ImageToText({ onUseText }: { onUseText: (text: string) => void }) {
@@ -10,7 +10,7 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const generation = useRef(0)
-  const worker = useRef<Worker | null>(null)
+  const worker = useRef<OcrWorker | null>(null)
   const startup = useRef<AbortController | null>(null)
   const readButton = useRef<HTMLButtonElement>(null)
   const cancelButton = useRef<HTMLButtonElement>(null)
@@ -47,7 +47,7 @@ export function ImageToText({ onUseText }: { onUseText: (text: string) => void }
     const controller = new AbortController()
     startup.current = controller
     setText(''); setHasResult(false); setBusy(true); setStatus('Loading local OCR resources and reading the image…')
-    let current: Worker | null = null
+    let current: OcrWorker | null = null
     try {
       const dimensions = imageDimensions(new Uint8Array(await file.arrayBuffer()), file.type)
       if (!dimensions) throw new Error('Unsupported or invalid image header.')

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ImageToText } from '../src/features/ocr/ImageToText'
-import { createWorker } from 'tesseract.js'
+import { startWorker } from '../src/features/ocr/startWorker'
 import axe from 'axe-core'
 import { imageDimensions, MAX_IMAGE_BYTES, validImageDimensions, validateImage } from '../src/features/ocr/validateImage'
 
@@ -14,7 +14,7 @@ const sampleFile = (header = pngHeader) => {
 }
 
 const mockWorker = { recognize: vi.fn(), terminate: vi.fn() }
-vi.mock('tesseract.js', () => ({ createWorker: vi.fn(async () => mockWorker) }))
+vi.mock('../src/features/ocr/startWorker', () => ({ startWorker: vi.fn(async () => mockWorker) }))
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 describe('image input', () => {
   it('rejects unsupported, empty and oversized files', () => {
@@ -56,7 +56,7 @@ describe('image input', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Image dimensions exceed 16 megapixels.'))
     expect(decode).not.toHaveBeenCalled()
-    expect(createWorker).not.toHaveBeenCalled()
+    expect(startWorker).not.toHaveBeenCalled()
   })
   it('rejects a forged or truncated header before decoding', async () => {
     const file = sampleFile(pngHeader.slice(0, 16))
@@ -68,7 +68,7 @@ describe('image input', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
     expect(decode).not.toHaveBeenCalled()
-    expect(createWorker).not.toHaveBeenCalled()
+    expect(startWorker).not.toHaveBeenCalled()
   })
   it('requires an image and does not send text to the main input', () => {
     const useText = vi.fn()
@@ -99,7 +99,7 @@ describe('image input', () => {
     expect(read.getAttribute('aria-disabled')).toBe('false')
     finishDecode({ width: 100, height: 100, close: vi.fn() })
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Recognition cancelled.'))
-    expect(createWorker).not.toHaveBeenCalled()
+    expect(startWorker).not.toHaveBeenCalled()
   })
   it('keeps recognized text editable and only uses it after explicit action', async () => {
     vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
@@ -111,7 +111,7 @@ describe('image input', () => {
     fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     const result = await screen.findByLabelText('RECOGNIZED TEXT')
-    const options = vi.mocked(createWorker).mock.calls[0][2]!
+    const options = vi.mocked(startWorker).mock.calls[0][1]!
     const expectedBase = new URL(import.meta.env.BASE_URL, window.location.href)
     expect(options.workerPath).toBe(new URL('ocr/worker.min.js', expectedBase).href)
     expect(options.corePath).toBe(new URL('ocr/core', expectedBase).href)
@@ -148,7 +148,7 @@ describe('image input', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Image dimensions exceed 16 megapixels.'))
     expect(bitmap.close).toHaveBeenCalled()
-    expect(createWorker).not.toHaveBeenCalled()
+    expect(startWorker).not.toHaveBeenCalled()
     expect((screen.getByRole('button', { name: 'Read image' }) as HTMLButtonElement).disabled).toBe(false)
   })
   it('shows a recoverable error if the image cannot be decoded', async () => {
@@ -158,7 +158,7 @@ describe('image input', () => {
     fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
     await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
-    expect(createWorker).not.toHaveBeenCalled()
+    expect(startWorker).not.toHaveBeenCalled()
     expect((screen.getByRole('button', { name: 'Read image' }) as HTMLButtonElement).disabled).toBe(false)
   })
   it('reports recognition failures and terminates the worker', async () => {
@@ -176,10 +176,7 @@ describe('image input', () => {
   })
   it('reports a model startup error and allows retry', async () => {
     vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
-    vi.mocked(createWorker).mockImplementationOnce((_lang, _mode, options) => {
-      queueMicrotask(() => options!.errorHandler!('model failed'))
-      return new Promise(() => {})
-    })
+    vi.mocked(startWorker).mockRejectedValueOnce(new Error('model failed'))
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
     fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
@@ -191,12 +188,12 @@ describe('image input', () => {
     vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
     mockWorker.terminate.mockResolvedValue(undefined)
     let finish!: (worker: typeof mockWorker) => void
-    vi.mocked(createWorker).mockImplementationOnce(() => new Promise(resolve => { finish = resolve as typeof finish }))
+    vi.mocked(startWorker).mockImplementationOnce(() => new Promise(resolve => { finish = resolve as typeof finish }))
     render(<ImageToText onUseText={vi.fn()} />)
     fireEvent.click(screen.getByText('Read text from an image'))
     fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
-    await waitFor(() => expect(createWorker).toHaveBeenCalled())
+    await waitFor(() => expect(startWorker).toHaveBeenCalled())
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     finish(mockWorker)
     await waitFor(() => expect(mockWorker.terminate).toHaveBeenCalled())
