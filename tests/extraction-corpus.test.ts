@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { extractCandidates } from '../src/features/extraction/extract'
 import { createCalendar } from '../src/features/calendar/ics'
+import { resolveSourceOccurrence } from '../src/features/calendar/resolution'
 
 describe('explicit date extraction regression corpus', () => {
   it.each([
@@ -125,6 +126,13 @@ describe('multiple dated sentences', () => {
     expect(events.map(e => [e.date, e.time])).toEqual([['2027-05-20', '10:00'], ['2027-05-25', '14:30']])
     expect(events.every(e => e.warnings.some(w => w.includes('paragraph')) && !e.confirmed)).toBe(true)
   })
+  it('supports independently dated relative and explicit sentences', () => {
+    const events = extractCandidates('Submit tomorrow at 10:00. Thi 25 tháng 5 năm 2027 lúc 14:30.', '2027-05-20', 'UTC')
+    expect(events).toHaveLength(2)
+    expect(events[0].source).toBe('Submit tomorrow at 10:00.')
+    expect(events[1].date).toBe('2027-05-25')
+    expect(events.every(e => e.warnings.some(w => w.includes('paragraph')) && !e.confirmed)).toBe(true)
+  })
   it.each(['From 2027-05-20. Until 2027-05-21.', 'Meeting 2027-05-20. Rescheduled to 2027-05-21.'])('does not split a potentially related pair: %s', input => {
     const events = extractCandidates(input)
     expect(events).toHaveLength(2)
@@ -147,5 +155,18 @@ describe('reference timezone', () => {
   })
   it('rejects an invalid reference timezone', () => {
     expect(extractCandidates('Tomorrow at 10:00', '2027-05-01', 'Not/A_Zone')).toEqual([])
+  })
+})
+
+
+describe('source timezone DST occurrence resolution', () => {
+  it.each([['earlier', '20271107T053000Z'], ['later', '20271107T063000Z']] as const)('exports the selected %s instant', (choice, expected) => {
+    const [base] = extractCandidates('Tomorrow at 01:30', '2027-11-06', 'UTC')
+    const event = { ...base, date: '2027-11-07', time: '01:30', needsResolution: true, resolutionKind: 'source-overlap' as const, sourceOverlap: { date: '2027-11-07', time: '01:30', zone: 'America/New_York' } }
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+    const resolved = resolveSourceOccurrence(event, choice)
+    expect(resolved.needsResolution).toBe(false)
+    expect(createCalendar([{ ...resolved, confirmed: true }])).toContain(`DTSTART:${expected}`)
+    expect(resolveSourceOccurrence({ ...event, editedTime: true }, choice).needsResolution).toBe(true)
   })
 })

@@ -12,8 +12,9 @@ export interface Candidate {
   confirmed: boolean
   sourceZone: string
   needsResolution: boolean
-  resolutionKind: 'zone' | 'range' | 'offset-or-range' | ''
+  resolutionKind: 'zone' | 'range' | 'offset-or-range' | 'source-overlap' | ''
   ambiguousOffset: string
+  sourceOverlap?: { date: string; time: string; zone: string }
   editedDate: boolean
   editedTime: boolean
   editedEndDate: boolean
@@ -42,9 +43,9 @@ export function extractCandidates(text: string, referenceDate?: string, referenc
     // Split only independently dated sentences; ranges and references to another
     // sentence stay together so the existing ambiguity gate blocks export.
     const sentences = line.split(/(?<=[.!?])\s+(?=[\p{Lu}])/u)
-    const sentenceDates = sentences.map(sentence => [...sentence.matchAll(datePattern)])
+    const sentenceDates = sentences.map(sentence => [...sentence.matchAll(datePattern)].length + [...sentence.matchAll(relativePattern)].length)
     const crossSentenceClue = /\b(?:from|to|until|through|between|before|after|not|instead|rescheduled|postponed|cancelled|canceled)\b|(?:từ|đến|trước|sau|không|thay|hoãn|hủy)/iu.test(line)
-    if (sentences.length > 1 && !hasRelativeDates(line) && !crossSentenceClue && sentenceDates.every(matches => matches.length === 1)) {
+    if (sentences.length > 1 && !crossSentenceClue && sentenceDates.every(count => count === 1)) {
       for (const sentence of sentences) {
         for (const event of extractCandidates(sentence, referenceDate, referenceZone)) {
           event.id = String(candidates.length)
@@ -88,9 +89,13 @@ export function extractCandidates(text: string, referenceDate?: string, referenc
           if (options.length === 1) {
             Object.assign(event, fields(options[0].withTimeZone(zone())))
             event.sourceZone = referenceZone
+          } else if (options.length === 2) {
+            event.needsResolution = true; event.resolutionKind = 'source-overlap'
+            event.sourceOverlap = { date: event.date, time: event.time, zone: referenceZone }
+            event.warnings.push('This source time occurs twice: choose the intended occurrence before confirmation.')
           } else {
             event.needsResolution = true; event.resolutionKind = 'zone'
-            event.warnings.push('This time is ambiguous or does not exist in the reference time zone: enter the correct local date and time.')
+            event.warnings.push('This time does not exist in the reference time zone: enter the correct local date and time.')
           }
         }
         if (uncertain) {

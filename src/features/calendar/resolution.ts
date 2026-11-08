@@ -1,5 +1,5 @@
 import type { Candidate } from '../extraction/extract'
-import { convertOffset, fields } from './time'
+import { convertOffset, fields, localOptions, zone, type Choice } from './time'
 import { isValidEvent } from './ics'
 
 export function resolveRange(event: Candidate): Candidate {
@@ -18,4 +18,13 @@ export function resolveManual(event: Candidate): Candidate {
   if (!event.needsResolution || event.resolutionKind !== 'zone' || !event.editedDate || !event.editedTime || (event.rangeRequired && (!event.editedEndDate || !event.editedEndTime))) return event
   const result = { ...event, needsResolution: false, resolutionKind: '' as const, confirmed: false }
   return isValidEvent(result) ? result : event
+}
+
+export function resolveSourceOccurrence(event: Candidate, choice: Choice): Candidate {
+  const source = event.sourceOverlap
+  if (!event.needsResolution || event.resolutionKind !== 'source-overlap' || !source || !choice || event.allDay || event.editedDate || event.editedTime || event.date !== source.date || event.time !== source.time) return event
+  const options = localOptions(source.date, source.time, source.zone)
+  if (options.length !== 2) return event
+  const local = fields(options[choice === 'earlier' ? 0 : 1].withTimeZone(zone()))
+  return { ...event, ...local, sourceZone: source.zone, needsResolution: false, resolutionKind: '', sourceOverlap: undefined, confirmed: false }
 }

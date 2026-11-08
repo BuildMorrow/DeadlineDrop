@@ -59,6 +59,19 @@ describe('event review interaction', () => {
     expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
   })
 
+  it.runIf(Intl.DateTimeFormat().resolvedOptions().timeZone !== 'America/New_York')('requires selecting a source-zone DST occurrence before confirmation', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Tomorrow at 01:30' } })
+    fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR RELATIVE DATES'), { target: { value: '2027-11-06' } })
+    fireEvent.change(screen.getByLabelText('REFERENCE TIME ZONE'), { target: { value: 'America/New_York' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect((screen.getByRole('button', { name: 'Confirm event 1' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByLabelText('SOURCE TIME') as HTMLInputElement).disabled).toBe(true)
+    expect(screen.queryByText(/^Start:/)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Second occurrence (UTC-05:00)' }))
+    expect((screen.getByRole('button', { name: 'Confirm event 1' }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('moves focus to confirmation after resolving a time range', async () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => setTimeout(() => callback(0), 0))
     render(<App />)

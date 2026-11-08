@@ -1,6 +1,6 @@
 # Relative date extraction design
 
-Status: v0.3 implementation in progress. Users choose a reference date and IANA timezone. Today/tomorrow, hôm nay/ngày mai, “in N days” and “sau N ngày” (up to 3650 days) are calculated from that date, not the system clock. Timed results are converted to the browser timezone when the source time has one valid instant. Ambiguous or nonexistent times require manual correction. Weekdays are detected but require manual correction. Changing the context clears the review.
+Status: v0.3 implementation in progress. Users choose a reference date and IANA timezone. Today/tomorrow, hôm nay/ngày mai, “in N days” and “sau N ngày” (up to 3650 days) are calculated from that date, not the system clock. Timed results are converted to the browser timezone when the source time has one valid instant. Repeated source times require an explicit first or second occurrence; nonexistent times require manual correction. Weekdays are detected but require manual correction. Changing the context clears the review.
 
 ## Inputs and uncertainty
 
@@ -27,4 +27,4 @@ The reference-date API uses the selected calendar date and timezone and converts
 
 Build a representative English/Vietnamese corpus with fixed reference dates and expected interpretations, including year rollover, leap days, language-specific week conventions, invalid expressions, multiple events in a paragraph, timezone offsets, DST gaps and repeated local times. Test the same inputs in multiple browser timezones; outcomes must use the explicit reference context, not the host's current date. Include cases that must remain unresolved and verify they cannot be confirmed or exported.
 
-This proposal adds no storage, backend, paid API or new dependency. Additional grammar, richer paragraph context and source-timezone DST disambiguation require further design and testing.
+This proposal adds no storage, backend, paid API or new dependency. Additional grammar and richer paragraph context require further design and testing.
