@@ -1,5 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { convertOffset, fields, type Choice } from '../calendar/time'
+import { convertOffset, fields, localOptions, zone, type Choice } from '../calendar/time'
 
 export interface Candidate {
   id: string
@@ -33,12 +33,27 @@ function validDate(y: number, m: number, d: number) {
   try { Temporal.PlainDate.from({ year: y, month: m, day: d }, { overflow: 'reject' }); return true } catch { return false }
 }
 
-const relativePattern = /(?<![\p{L}\p{N}])(?:today|tomorrow|hôm nay|ngày mai)(?![\p{L}\p{N}])/giu
+const relativePattern = /(?<![\p{L}\p{N}])(?:day\s+after\s+tomorrow|next\s+week|in\s+\d+\s+(?:weeks?|months?)|tuần\s+sau|tháng\s+sau|năm\s+sau|ngày\s+kia|today|tomorrow|hôm nay|ngày mai|in\s+\d+\s+days?|sau\s+\d+\s+ngày|(?:next\s+)?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|thứ\s+(?:hai|ba|tư|năm|sáu|bảy)|chủ\s+nhật)(?![\p{L}\p{N}])/giu
 export function hasRelativeDates(text: string): boolean { return [...text.matchAll(relativePattern)].length > 0 }
 
-export function extractCandidates(text: string, referenceDate?: string): Candidate[] {
+export function extractCandidates(text: string, referenceDate?: string, referenceZone = zone()): Candidate[] {
   const candidates: Candidate[] = []
   for (const line of text.split(/\r?\n/)) {
+    // Split only independently dated sentences; ranges and references to another
+    // sentence stay together so the existing ambiguity gate blocks export.
+    const sentences = line.split(/(?<=[.!?])\s+(?=[\p{Lu}])/u)
+    const sentenceDates = sentences.map(sentence => [...sentence.matchAll(datePattern)])
+    const crossSentenceClue = /\b(?:from|to|until|through|between|before|after|not|instead|rescheduled|postponed|cancelled|canceled)\b|(?:từ|đến|trước|sau|không|thay|hoãn|hủy)/iu.test(line)
+    if (sentences.length > 1 && !hasRelativeDates(line) && !crossSentenceClue && sentenceDates.every(matches => matches.length === 1)) {
+      for (const sentence of sentences) {
+        for (const event of extractCandidates(sentence, referenceDate, referenceZone)) {
+          event.id = String(candidates.length)
+          event.warnings.unshift('Separated from a paragraph: check the event against the full message.')
+          candidates.push(event)
+        }
+      }
+      continue
+    }
     const relatives = [...line.matchAll(relativePattern)]
     if (relatives.length && referenceDate) {
       let reference: Temporal.PlainDate | undefined
@@ -49,19 +64,35 @@ export function extractCandidates(text: string, referenceDate?: string): Candida
         }
       } catch { /* invalid references cannot be used */ }
       if (!reference) continue
+      try { new Intl.DateTimeFormat('en', { timeZone: referenceZone }) } catch { continue }
       const explicitDates = [...line.matchAll(datePattern)]
       // These expressions can change or contradict the meaning of a relative date.
       const relativeTimes = [...line.matchAll(/\b\d{1,2}:\d{2}(?:\s*(?:am|pm))?|\b\d{1,2}\s*(?:giờ|h)(?:\s*\d{1,2})?(?![\p{L}\p{N}])|\b\d{1,2}\s*(?:am|pm)\b/giu)]
-      const uncertain = relativeTimes.length > 1 || relatives.length !== 1 || explicitDates.length > 0 || /[+-]\d{2}:?\d{2}\b/.test(line) || /\b(?:not|except|before|after|or|and|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|yesterday|next|previous|utc|gmt)\b|(?:không|trước|sau|hoặc|hôm qua|thứ|tuần|múi giờ)/iu.test(line)
-      const tomorrow = /^(?:tomorrow|ngày mai)$/iu.test(relatives[0][0])
-      const date = reference.add({ days: tomorrow ? 1 : 0 })
-      if (date.year > 9999) continue
+      const expression = relatives[0][0]
+      const remainder = line.slice(0, relatives[0].index) + line.slice(relatives[0].index! + expression.length)
+      const daysMatch = expression.match(/\d+/)
+      const days = daysMatch ? Number(daysMatch[0]) : /^(?:tomorrow|ngày mai)$/iu.test(expression) ? 1 : 0
+      const weekday = /(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|thứ|chủ)/iu.test(expression)
+      const unsupported = /(?:week|month|tuần|tháng|năm|kia|day\s+after)/iu.test(expression)
+      let uncertain = weekday || unsupported || !Number.isSafeInteger(days) || days > 3650 || relativeTimes.length > 1 || relatives.length !== 1 || explicitDates.length > 0 || /[+-]\d{2}:?\d{2}\b/.test(line) || /\b(?:not|except|before|after|or|and|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|next|previous|utc|gmt)\b|(?:không|trước|sau|hoặc|hôm qua|thứ|tuần|múi giờ)/iu.test(remainder)
+      let date = reference.add({ days: uncertain ? 0 : days })
+      if (date.year > 9999) { uncertain = true; date = reference }
       const replaced = line.slice(0, relatives[0].index) + date.toString() + line.slice(relatives[0].index! + relatives[0][0].length)
       const derived = extractCandidates(replaced)
       for (const event of derived) {
         event.id = String(candidates.length)
         event.source = line.trim(); event.title = line.trim()
-        event.warnings.unshift(`Relative date based on ${referenceDate} in your browser time zone: check the original message.`)
+        event.warnings.unshift(`Relative date based on ${referenceDate} in ${referenceZone}: check the original message.`)
+        if (!uncertain && !event.needsResolution && event.date && event.time && referenceZone !== zone()) {
+          const options = localOptions(event.date, event.time, referenceZone)
+          if (options.length === 1) {
+            Object.assign(event, fields(options[0].withTimeZone(zone())))
+            event.sourceZone = referenceZone
+          } else {
+            event.needsResolution = true; event.resolutionKind = 'zone'
+            event.warnings.push('This time is ambiguous or does not exist in the reference time zone: enter the correct local date and time.')
+          }
+        }
         if (uncertain) {
           event.date = ''; event.needsResolution = true; event.resolutionKind = 'zone'
           event.warnings.push('Multiple or unclear date expressions: enter the correct local date and time.')

@@ -15,8 +15,9 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 
 ## v0.3 — Smart extraction (in progress)
 
-- Today/tomorrow and hôm nay/ngày mai use a user-selected reference date in the displayed browser timezone.
-- Broader relative expressions, multiple events in paragraphs and editable reference timezones remain planned.
+- Today/tomorrow, hôm nay/ngày mai and day counts use a user-selected reference date and IANA timezone; unambiguous times are converted to the browser timezone.
+- Independently dated sentences can be separated; ambiguous weekdays and linked dates require correction.
+- Broader language understanding, source-zone DST disambiguation and representative real-world evaluation remain future improvements.
 
 ## v1.0 — Document to calendar
 

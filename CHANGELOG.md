@@ -2,7 +2,8 @@
 
 ## Unreleased — v0.3 smart extraction (in progress)
 
-- Interpret today/tomorrow and hôm nay/ngày mai using a user-selected reference date in the browser timezone.
+- Interpret today/tomorrow, hôm nay/ngày mai and day counts using a user-selected reference date and IANA timezone; convert unambiguous timed results to the browser timezone.
+- Detect weekday expressions for manual correction and separate independently dated sentences with a review warning.
 - Block mixed or unclear relative-date expressions for manual correction and clear review when the reference changes.
 - Recognize Vietnamese times such as “9 giờ” at the end of a sentence.
 
