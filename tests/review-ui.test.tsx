@@ -39,7 +39,8 @@ describe('event review interaction', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
     fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
     expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(false)
-    fireEvent.change(screen.getByLabelText('REFERENCE TIME ZONE'), { target: { value: 'UTC' } })
+    const zone = screen.getByLabelText('REFERENCE TIME ZONE') as HTMLInputElement
+    fireEvent.change(zone, { target: { value: zone.value === 'UTC' ? 'Asia/Bangkok' : 'UTC' } })
     expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
     expect(screen.queryByLabelText('DATE')).toBeNull()
   })
