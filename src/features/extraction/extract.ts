@@ -33,9 +33,43 @@ function validDate(y: number, m: number, d: number) {
   try { Temporal.PlainDate.from({ year: y, month: m, day: d }, { overflow: 'reject' }); return true } catch { return false }
 }
 
-export function extractCandidates(text: string): Candidate[] {
+const relativePattern = /(?<![\p{L}\p{N}])(?:today|tomorrow|hôm nay|ngày mai)(?![\p{L}\p{N}])/giu
+export function hasRelativeDates(text: string): boolean { return [...text.matchAll(relativePattern)].length > 0 }
+
+export function extractCandidates(text: string, referenceDate?: string): Candidate[] {
   const candidates: Candidate[] = []
   for (const line of text.split(/\r?\n/)) {
+    const relatives = [...line.matchAll(relativePattern)]
+    if (relatives.length && referenceDate) {
+      let reference: Temporal.PlainDate | undefined
+      try {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(referenceDate)) {
+          const parsed = Temporal.PlainDate.from(referenceDate)
+          if (parsed.year >= 1000 && parsed.year <= 9999) reference = parsed
+        }
+      } catch { /* invalid references cannot be used */ }
+      if (!reference) continue
+      const explicitDates = [...line.matchAll(datePattern)]
+      // These expressions can change or contradict the meaning of a relative date.
+      const relativeTimes = [...line.matchAll(/\b\d{1,2}:\d{2}(?:\s*(?:am|pm))?|\b\d{1,2}\s*(?:giờ|h)(?:\s*\d{1,2})?(?![\p{L}\p{N}])|\b\d{1,2}\s*(?:am|pm)\b/giu)]
+      const uncertain = relativeTimes.length > 1 || relatives.length !== 1 || explicitDates.length > 0 || /[+-]\d{2}:?\d{2}\b/.test(line) || /\b(?:not|except|before|after|or|and|yesterday|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week|yesterday|next|previous|utc|gmt)\b|(?:không|trước|sau|hoặc|hôm qua|thứ|tuần|múi giờ)/iu.test(line)
+      const tomorrow = /^(?:tomorrow|ngày mai)$/iu.test(relatives[0][0])
+      const date = reference.add({ days: tomorrow ? 1 : 0 })
+      if (date.year > 9999) continue
+      const replaced = line.slice(0, relatives[0].index) + date.toString() + line.slice(relatives[0].index! + relatives[0][0].length)
+      const derived = extractCandidates(replaced)
+      for (const event of derived) {
+        event.id = String(candidates.length)
+        event.source = line.trim(); event.title = line.trim()
+        event.warnings.unshift(`Relative date based on ${referenceDate} in your browser time zone: check the original message.`)
+        if (uncertain) {
+          event.date = ''; event.needsResolution = true; event.resolutionKind = 'zone'
+          event.warnings.push('Multiple or unclear date expressions: enter the correct local date and time.')
+        }
+        candidates.push(event)
+      }
+      continue
+    }
     const matches = [...line.matchAll(datePattern)].filter(match => line[(match.index ?? 0) - 1] !== ':' && line[(match.index ?? 0) + match[0].length] !== ':')
     for (const match of matches) {
       let y = 0, m = 0, d = 0
@@ -54,7 +88,7 @@ export function extractCandidates(text: string): Candidate[] {
       else if (!warnings.length && !validDate(y, m, d)) warnings.push('Invalid date: enter a valid date.')
       let date = warnings.length ? '' : `${y}-${pad(m)}-${pad(d)}`
       if (matches.length > 1) warnings.push('Multiple dates on this line: check each event and enter its time.')
-      const timeMatch = matches.length === 1 ? line.replace(/(\d{4}-\d{2}-\d{2})T/, '$1 ').match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?(?=\b|Z\b)|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?\b|\b(\d{1,2})\s*(am|pm)\b/iu) : null
+      const timeMatch = matches.length === 1 ? line.replace(/(\d{4}-\d{2}-\d{2})T/, '$1 ').match(/\b(\d{1,2}):(\d{2})(?:\s*(am|pm))?(?=\b|Z\b)|\b(\d{1,2})\s*(?:giờ|h)(?:\s*(\d{1,2}))?(?![\p{L}\p{N}])|\b(\d{1,2})\s*(am|pm)\b/iu) : null
       let time = ''
       if (timeMatch) {
         let hour = +(timeMatch[1] || timeMatch[4] || timeMatch[6]); const minute = +(timeMatch[2] || timeMatch[5] || 0)

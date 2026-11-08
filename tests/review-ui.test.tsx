@@ -16,6 +16,22 @@ describe('event review interaction', () => {
     expect((await axe.run(container, options)).violations).toEqual([])
   })
 
+  it('requires a reference date and clears confirmed events if it changes', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Submit tomorrow at 5 pm' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect(screen.getByRole('alert').textContent).toContain('Choose a reference date')
+    fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR TODAY / TOMORROW'), { target: { value: '2027-12-31' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect((screen.getByLabelText('DATE') as HTMLInputElement).value).toBe('2028-01-01')
+    expect(screen.getByText(/Relative date based on 2027-12-31/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR TODAY / TOMORROW'), { target: { value: '2028-01-01' } })
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.queryByLabelText('DATE')).toBeNull()
+  })
+
   it('moves focus to confirmation after resolving a time range', async () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => setTimeout(() => callback(0), 0))
     render(<App />)

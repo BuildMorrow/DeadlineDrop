@@ -13,6 +13,11 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Local English and Vietnamese OCR for PNG, JPEG and WebP, with editable recognized text feeding the existing review and export workflow.
 - The owner has deferred broader accuracy, browser, privacy-network, accessibility and OCR-core licensing verification; these remain unresolved release risks, not completed checks.
 
+## v0.3 — Smart extraction (in progress)
+
+- Today/tomorrow and hôm nay/ngày mai use a user-selected reference date in the displayed browser timezone.
+- Broader relative expressions, multiple events in paragraphs and editable reference timezones remain planned.
+
 ## v1.0 — Document to calendar
 
 - PDF input and multiple deadlines, event checklists, and improved language understanding.

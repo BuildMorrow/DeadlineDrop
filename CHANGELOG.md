@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — v0.3 smart extraction (in progress)
+
+- Interpret today/tomorrow and hôm nay/ngày mai using a user-selected reference date in the browser timezone.
+- Block mixed or unclear relative-date expressions for manual correction and clear review when the reference changes.
+- Recognize Vietnamese times such as “9 giờ” at the end of a sentence.
+
 ## Unreleased — v0.2 image workflow
 
 - Read supported PNG, JPEG and WebP images locally using English or Vietnamese OCR.

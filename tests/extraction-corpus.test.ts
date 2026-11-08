@@ -72,3 +72,40 @@ describe('explicit date extraction regression corpus', () => {
     }
   })
 })
+
+
+describe('relative dates with an explicit reference', () => {
+  it.each([
+    ['Submit tomorrow at 5 pm', '2027-12-31', '2028-01-01', '17:00'],
+    ['Nộp bài ngày mai lúc 14:30', '2028-02-28', '2028-02-29', '14:30'],
+    ['Họp hôm nay lúc 9 giờ', '2027-01-01', '2027-01-01', '09:00'],
+    ['Meeting today 10:30', '2027-05-20', '2027-05-20', '10:30'],
+  ])('uses the chosen date for %s', (input, reference, date, time) => {
+    const [event] = extractCandidates(input, reference)
+    expect(event.date).toBe(date); expect(event.time).toBe(time)
+    expect(event.source).toBe(input); expect(event.warnings.join()).toContain(reference)
+    expect(() => createCalendar([event])).toThrow()
+  })
+  it.each(['not tomorrow at 10:00', 'tomorrow and today at 10:00', 'day after tomorrow at 10:00', 'tomorrow 2027-05-20 10:00', 'tomorrow at 10:00 UTC', 'tomorrow at 5 pm or 6 pm', 'tomorrow at 5 pm, 6 pm'])('blocks unclear relative input: %s', input => {
+    const events = extractCandidates(input, '2027-05-01')
+    expect(events.length).toBeGreaterThan(0)
+    expect(events.every(e => e.needsResolution && !e.date)).toBe(true)
+    expect(() => createCalendar(events.map(e => ({ ...e, confirmed: true })))).toThrow()
+  })
+  it('rejects invalid and missing reference dates', () => {
+    expect(extractCandidates('Tomorrow at 10:00', '2027-02-30')).toEqual([])
+    expect(extractCandidates('Tomorrow at 10:00')).toEqual([])
+  })
+})
+
+
+describe('relative dates at daylight-saving transitions', () => {
+  it.runIf(Intl.DateTimeFormat().resolvedOptions().timeZone === 'America/New_York')('requires resolution for a repeated time and rejects a missing time', () => {
+    const [overlap] = extractCandidates('Tomorrow at 01:30', '2027-11-06')
+    expect(overlap.date).toBe('2027-11-07')
+    expect(() => createCalendar([{ ...overlap, confirmed: true }])).toThrow()
+    const [gap] = extractCandidates('Tomorrow at 02:30', '2027-03-13')
+    expect(gap.date).toBe('2027-03-14')
+    expect(() => createCalendar([{ ...gap, confirmed: true }])).toThrow()
+  })
+})
