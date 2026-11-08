@@ -146,6 +146,9 @@ export function extractCandidates(text: string, referenceDate?: string, referenc
       const unsupportedIsoOffset = !iso && /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?[+-]\d{2,4}\b/i.test(line)
       const unknown = line.match(/\b(?:[A-Za-z_]+\/[A-Za-z_]+|PST|PDT|EST|EDT|CST|CDT|MST|MDT|IST|BST|CET|CEST|JST|AEST|AEDT)\b/i) || [...line.matchAll(/\b[A-Z]{2,5}\b/g)].find(m => !['UTC', 'GMT', 'AM', 'PM'].includes(m[0]))
       const range = !iso ? line.match(/\b(\d{1,2}:\d{2})\s*(-|–|—|to|đến)\s*(\d{1,2}:\d{2})\b/iu) : null
+      // Unsupported am/pm or Vietnamese time ranges must retain an end field.
+      const unsupportedRange = !iso && !range && /\b(?:\d{1,2}:\d{2}(?:\s*(?:am|pm))?|\d{1,2}\s*(?:am|pm)|\d{1,2}\s*(?:giờ|h)(?:\s*\d{1,2})?)\s*(?:-|–|—|to|đến)\s*(?:\d{1,2}:\d{2}(?:\s*(?:am|pm))?|\d{1,2}\s*(?:am|pm)|\d{1,2}\s*(?:giờ|h)(?:\s*\d{1,2})?)(?![\p{L}\p{N}])/iu.test(line)
+      const shorthandRange = !iso && !range && /\b(?:\d{1,2}\s*(?:am|pm|giờ|h)\s*(?:-|–|—|to|đến)\s*\d{1,2}|\d{1,2}\s*(?:-|–|—|to|đến)\s*\d{1,2}\s*(?:am|pm|giờ|h))(?![\p{L}\p{N}])/iu.test(line)
       const barePositive = line.match(/\b\d{1,2}:\d{2}\s*(\+\d{2}:?\d{2})\b/)
       let offset = ''
       if (iso) {
@@ -173,7 +176,8 @@ export function extractCandidates(text: string, referenceDate?: string, referenc
         warnings.push('Review the start and end of this range, or choose the offset interpretation if applicable.')
       }
       if (range && (prefixed || unknown)) { resolutionKind = 'zone'; warnings.push('A range with a source time zone requires manual local date and time correction.') }
-      const timeCount = [...line.replace(/(?:UTC|GMT)\s*[+-]\d{1,2}(?::?\d{2})?\b|[+]\d{2}:?\d{2}\b/gi, '').matchAll(/\b\d{1,2}:\d{2}\b/g)].length
+      if (unsupportedRange || shorthandRange) { needsResolution = true; resolutionKind = 'zone'; warnings.push('This time range needs a corrected start and end date and time.') }
+      const timeCount = [...line.replace(/(?:UTC|GMT)\s*[+-]\d{1,2}(?::?\d{2})?\b|[+]\d{2}:?\d{2}\b/gi, '').matchAll(/\b\d{1,2}:\d{2}(?:\s*(?:am|pm))?|\b\d{1,2}\s*(?:giờ|h)(?:\s*\d{1,2})?(?![\p{L}\p{N}])|\b\d{1,2}\s*(?:am|pm)\b/giu)].length
       if (!range && !iso && timeCount > 1) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Multiple times found: enter the correct local date and time.') }
       if (!iso && /\b\d{1,2}:\d{2}:\d{2}\b/.test(line)) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Seconds are not supported: enter a corrected local time.') }
       const prefixedZoneCount = [...line.matchAll(/\b(?:UTC|GMT)\b(?:\s*[+-][\d:]*)?/gi)].length
@@ -185,7 +189,7 @@ export function extractCandidates(text: string, referenceDate?: string, referenc
         catch { needsResolution = true; resolutionKind = 'zone'; warnings.push('Could not convert the source time zone. Enter the correct local time.') }
       } else if (offset && (!date || !time || matches.length !== 1)) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Correct the date and time for the source zone.') }
       if (matches.length > 1) { needsResolution = true; resolutionKind = 'zone'; warnings.push('Multiple dates: enter the correct local date and time for each event.') }
-      candidates.push({ id: `${candidates.length}`, source: line.trim(), title: line.trim(), date, time, allDay: false, warnings, confirmed: false, sourceZone, needsResolution, resolutionKind, ambiguousOffset, editedDate: false, editedTime: false, editedEndDate: false, editedEndTime: false, endDate, endTime, rangeRequired: !!range, choice, endChoice })
+      candidates.push({ id: `${candidates.length}`, source: line.trim(), title: line.trim(), date, time, allDay: false, warnings, confirmed: false, sourceZone, needsResolution, resolutionKind, ambiguousOffset, editedDate: false, editedTime: false, editedEndDate: false, editedEndTime: false, endDate, endTime, rangeRequired: !!range || !!unsupportedRange || !!shorthandRange, choice, endChoice })
     }
   }
   return candidates

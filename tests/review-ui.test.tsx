@@ -72,6 +72,17 @@ describe('event review interaction', () => {
     expect((screen.getByRole('button', { name: 'Confirm event 1' }) as HTMLButtonElement).disabled).toBe(false)
   })
 
+  it('allows correcting an ambiguous weekday as an all-day event', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Submit next Monday' } })
+    fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR RELATIVE DATES'), { target: { value: '2027-05-20' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    fireEvent.change(screen.getByLabelText('DATE'), { target: { value: '2027-05-24' } })
+    fireEvent.click(screen.getByLabelText('All-day event'))
+    fireEvent.click(screen.getByRole('button', { name: 'Apply corrected all-day date' }))
+    expect((screen.getByRole('button', { name: 'Confirm event 1' }) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('moves focus to confirmation after resolving a time range', async () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => setTimeout(() => callback(0), 0))
     render(<App />)

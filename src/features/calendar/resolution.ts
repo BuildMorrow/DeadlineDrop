@@ -15,7 +15,7 @@ export function resolveOffset(event: Candidate): Candidate {
   } catch { return event }
 }
 export function resolveManual(event: Candidate): Candidate {
-  if (!event.needsResolution || event.resolutionKind !== 'zone' || !event.editedDate || !event.editedTime || (event.rangeRequired && (!event.editedEndDate || !event.editedEndTime))) return event
+  if (!event.needsResolution || event.resolutionKind !== 'zone' || !event.editedDate || (!event.allDay && !event.editedTime) || (event.rangeRequired && (!event.editedEndDate || !event.editedEndTime))) return event
   const result = { ...event, needsResolution: false, resolutionKind: '' as const, confirmed: false }
   return isValidEvent(result) ? result : event
 }

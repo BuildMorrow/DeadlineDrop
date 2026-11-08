@@ -1,6 +1,6 @@
 # Relative date extraction design
 
-Status: v0.3 implementation in progress. Users choose a reference date and IANA timezone. Today/tomorrow, hôm nay/ngày mai, “in N days” and “sau N ngày” (up to 3650 days) are calculated from that date, not the system clock. Timed results are converted to the browser timezone when the source time has one valid instant. Repeated source times require an explicit first or second occurrence; nonexistent times require manual correction. Weekdays are detected but require manual correction. Changing the context clears the review.
+Status: scoped v0.3 implementation complete; wider real-world validation remains outstanding. Users choose a reference date and IANA timezone. Today/tomorrow, hôm nay/ngày mai, “in N days” and “sau N ngày” (up to 3650 days) are calculated from that date, not the system clock. Timed results are converted to the browser timezone when the source time has one valid instant. Repeated source times require an explicit first or second occurrence; nonexistent times require manual correction. Weekdays are detected but require manual correction. Changing the context clears the review.
 
 ## Inputs and uncertainty
 
@@ -23,7 +23,7 @@ Reference dates below are explicitly supplied calendar dates, never inferred fro
 
 The reference-date API uses the selected calendar date and timezone and converts unambiguous timed events to the browser local timezone. DST tests run in America/New_York; broader cross-timezone and browser testing remains useful.
 
-## Further verification and planned scope
+## Further verification and known limits
 
 Build a representative English/Vietnamese corpus with fixed reference dates and expected interpretations, including year rollover, leap days, language-specific week conventions, invalid expressions, multiple events in a paragraph, timezone offsets, DST gaps and repeated local times. Test the same inputs in multiple browser timezones; outcomes must use the explicit reference context, not the host's current date. Include cases that must remain unresolved and verify they cannot be confirmed or exported.
 

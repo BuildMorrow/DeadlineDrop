@@ -13,11 +13,12 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Local English and Vietnamese OCR for PNG, JPEG and WebP, with editable recognized text feeding the existing review and export workflow.
 - The owner has deferred broader accuracy, browser, privacy-network, accessibility and OCR-core licensing verification; these remain unresolved release risks, not completed checks.
 
-## v0.3 — Smart extraction (in progress)
+## v0.3 — Smart extraction (implementation complete)
 
 - Today/tomorrow, hôm nay/ngày mai and day counts use a user-selected reference date and IANA timezone; unambiguous times are converted to the browser timezone.
 - Independently dated sentences can be separated; ambiguous weekdays and linked dates require correction.
-- Broader language understanding and representative real-world evaluation remain future improvements.
+- Unsupported time-range formats require both endpoints to be entered; ambiguous dates can be corrected as all-day events.
+- The parser remains limited: broader language understanding and representative real-world evaluation remain future improvements. Implementation completion does not mean public release verification is complete.
 
 ## v1.0 — Document to calendar
 

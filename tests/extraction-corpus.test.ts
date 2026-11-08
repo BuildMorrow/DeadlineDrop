@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { extractCandidates } from '../src/features/extraction/extract'
 import { createCalendar } from '../src/features/calendar/ics'
-import { resolveSourceOccurrence } from '../src/features/calendar/resolution'
+import { resolveManual, resolveSourceOccurrence } from '../src/features/calendar/resolution'
 
 describe('explicit date extraction regression corpus', () => {
   it.each([
@@ -168,5 +168,39 @@ describe('source timezone DST occurrence resolution', () => {
     expect(resolved.needsResolution).toBe(false)
     expect(createCalendar([{ ...resolved, confirmed: true }])).toContain(`DTSTART:${expected}`)
     expect(resolveSourceOccurrence({ ...event, editedTime: true }, choice).needsResolution).toBe(true)
+  })
+})
+
+
+describe('unsupported time range safety', () => {
+  it.each(['Meeting 2027-05-20 9am-10am', 'Họp 2027-05-20 từ 9 giờ đến 10 giờ', 'Meeting tomorrow from 9am to 10am', 'Meeting 2027-05-20 9 to 10 am', 'Meeting 2027-05-20 9am to 10'])('requires both range endpoints for %s', input => {
+    const [event] = extractCandidates(input, '2027-05-19', 'UTC')
+    expect(event.needsResolution).toBe(true)
+    expect(event.rangeRequired).toBe(true)
+    expect(event.endTime).toBe('')
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  })
+  it.each(['Meeting 2027-05-20 9am, 10am', 'Họp 2027-05-20 9 giờ và 10 giờ'])('blocks multiple times in %s', input => {
+    const [event] = extractCandidates(input)
+    expect(event.needsResolution).toBe(true)
+    expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
+  })
+})
+
+
+describe('manual correction of uncertain dates', () => {
+  it('allows an explicitly chosen all-day date without inventing a time', () => {
+    const [event] = extractCandidates('Submit next Monday', '2027-05-20', 'UTC')
+    const corrected = resolveManual({ ...event, date: '2027-05-24', editedDate: true, allDay: true })
+    expect(corrected.needsResolution).toBe(false)
+    expect(createCalendar([{ ...corrected, confirmed: true }])).toContain('DTSTART;VALUE=DATE:20270524')
+  })
+  it('requires both range endpoints before resolving unsupported time ranges', () => {
+    const [event] = extractCandidates('Meeting 2027-05-20 9am-10am')
+    const incomplete = { ...event, date: '2027-05-20', time: '09:00', editedDate: true, editedTime: true }
+    expect(resolveManual(incomplete).needsResolution).toBe(true)
+    const corrected = resolveManual({ ...incomplete, endDate: '2027-05-20', endTime: '10:00', editedEndDate: true, editedEndTime: true })
+    expect(corrected.needsResolution).toBe(false)
+    expect(createCalendar([{ ...corrected, confirmed: true }])).toContain('DTEND:')
   })
 })
