@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — v0.4 UX and accessibility (in progress)
+
+- Preserve keyboard focus after removing events and announce review counts.
+- Label event groups and associate date and time fields with their uncertainty warnings.
+
 ## Unreleased — v0.3 smart extraction
 
 - Interpret today/tomorrow, hôm nay/ngày mai and day counts using a user-selected reference date and IANA timezone; convert unambiguous timed results to the browser timezone.

@@ -16,6 +16,29 @@ describe('event review interaction', () => {
     expect((await axe.run(container, options)).violations).toEqual([])
   })
 
+  it('keeps focus in the review after removing events and labels each event group', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'One 2027-05-20 10:00\nTwo 2027-05-21 11:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect(screen.getByRole('article', { name: 'Event 1' })).toBeTruthy()
+    const first = screen.getByRole('button', { name: 'Remove event 1' })
+    first.focus(); fireEvent.click(first)
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Remove event 1' }))
+    expect(screen.getByText('1 event found. 0 confirmed.').getAttribute('role')).toBe('status')
+    fireEvent.click(screen.getByRole('button', { name: 'Remove event 1' }))
+    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Review your events' }))
+    expect(screen.getByText('0 events found. 0 confirmed.').getAttribute('role')).toBe('status')
+  })
+  it('associates date and time fields with uncertainty warnings', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 03/04/2027 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    const description = screen.getByLabelText('DATE').getAttribute('aria-describedby')
+    expect(description).toBeTruthy()
+    expect(document.getElementById(description!)?.textContent).toContain('Ambiguous numeric date')
+    expect(screen.getByLabelText('TIME').getAttribute('aria-describedby')).toBe(description)
+  })
+
   it('requires a reference date and clears confirmed events if it changes', () => {
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Submit tomorrow at 5 pm' } })
