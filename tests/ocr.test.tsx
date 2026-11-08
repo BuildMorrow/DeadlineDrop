@@ -174,6 +174,19 @@ describe('image input', () => {
     expect(screen.queryByLabelText('RECOGNIZED TEXT')).toBeNull()
     expect((screen.getByRole('button', { name: 'Read image' }) as HTMLButtonElement).disabled).toBe(false)
   })
+  it('reports a model startup error and allows retry', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
+    vi.mocked(createWorker).mockImplementationOnce((_lang, _mode, options) => {
+      queueMicrotask(() => options!.errorHandler!('model failed'))
+      return new Promise(() => {})
+    })
+    render(<ImageToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from an image'))
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
+    fireEvent.click(screen.getByRole('button', { name: 'Read image' }))
+    await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Could not read this image'))
+    expect(screen.getByRole('button', { name: 'Read image' }).getAttribute('aria-disabled')).toBe('false')
+  })
   it('does not publish a result if recognition is cancelled while the worker starts', async () => {
     vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ width: 100, height: 100, close: vi.fn() })))
     mockWorker.terminate.mockResolvedValue(undefined)
