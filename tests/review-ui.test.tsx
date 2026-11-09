@@ -16,6 +16,33 @@ describe('event review interaction', () => {
     expect((await axe.run(container, options)).violations).toEqual([])
   })
 
+  it('switches to Vietnamese, translates ambiguity warnings, and preserves the review', () => {
+    const { container } = render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 03/04/2027 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    fireEvent.change(screen.getByLabelText('Language / Ngôn ngữ'), { target: { value: 'vi' } })
+    expect(container.querySelector('.app-shell')?.getAttribute('lang')).toBe('vi')
+    expect(screen.getByText('Ngày dạng số có nhiều cách hiểu: hãy chọn đúng ngày.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'Xác nhận sự kiện 1' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByLabelText('NỘI DUNG') as HTMLTextAreaElement).value).toBe('Meeting 03/04/2027 10:00')
+    fireEvent.click(screen.getByText('Đọc chữ từ ảnh'))
+    expect(screen.getByRole('button', { name: 'Đọc ảnh' })).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Language / Ngôn ngữ'), { target: { value: 'en' } })
+    expect(screen.getByText('Ambiguous numeric date: choose the correct date.')).toBeTruthy()
+  })
+
+  it('switches themes without losing the current review', () => {
+    const { container } = render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to light theme' }))
+    expect(container.querySelector('.app-shell')?.getAttribute('data-theme')).toBe('light')
+    expect(screen.getByText('1 confirmed event')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to dark theme' }))
+    expect(container.querySelector('.app-shell')?.getAttribute('data-theme')).toBe('dark')
+  })
+
   it('keeps focus in the review after removing events and labels each event group', () => {
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'One 2027-05-20 10:00\nTwo 2027-05-21 11:00' } })

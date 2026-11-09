@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased — v0.4 UX and accessibility (in progress)
+## Unreleased — v0.4 UX and accessibility
 
+- Add English/Vietnamese interface and dark/light theme controls without persisting user content.
 - Preserve keyboard focus after removing events and announce review counts.
 - Label event groups and associate date and time fields with their uncertainty warnings.
 

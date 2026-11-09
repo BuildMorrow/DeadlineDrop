@@ -14,6 +14,8 @@ Use one event per line and include a four-digit year. Supported dates include IS
 
 ## How to use
 
+Use the language selector to choose English or Vietnamese, and the theme button to switch between dark and light. These choices last for the current page session and are not saved.
+
 To start from an image, open **Read text from an image**, choose a supported file and its language, and select **Read image**. Correct the recognized text, then select **Use this text**. This replaces the current input and clears its event review. Continue with the text workflow below; check all dates against the original image.
 
 Paste a message containing dates, preferably one event per line. For relative dates, choose the date and IANA time zone the message refers to, then select **Find dates**. Changing either reference clears the current review. Review the original text and each candidate, edit any details, resolve warnings and confirm the events you want. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time, but calendar applications may add one on import; check the imported event.

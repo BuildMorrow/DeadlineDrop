@@ -84,3 +84,8 @@ On 2026-11-06, the project owner chose to close issue #5 without completing the 
 ## OCR keyboard focus — 2026-11-07
 
 In the Windows in-app browser, a synthetic PNG was selected and recognition was started with Enter. Focus stayed on Read image while it was marked unavailable; once recognition completed, Tab moved to the recognized-text editor. An automated component test separately checks that cancel returns focus to Read image and repeated activation does not start a second request. A full keyboard journey and screen-reader speech output were not verified in this run.
+
+
+## v0.4 browser sample — 2026-11-09
+
+In the Windows in-app browser on a local development build, switching to Vietnamese and the light theme displayed translated controls. The input `Họp 03/04/2027 10:00` showed a Vietnamese ambiguity warning and disabled confirmation. At a 320 × 720 viewport override, a header overflow was found and fixed; afterwards document and viewport widths were both 305 CSS pixels. This is a simulated viewport, not a physical device or screen-reader test. Contrast and WCAG conformance were not comprehensively audited.

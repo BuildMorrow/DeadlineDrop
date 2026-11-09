@@ -20,11 +20,12 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Unsupported time-range formats require both endpoints to be entered; ambiguous dates can be corrected as all-day events.
 - The parser remains limited: broader language understanding and representative real-world evaluation remain future improvements. Implementation completion does not mean public release verification is complete.
 
-## v0.4 — UX and accessibility (in progress)
+## v0.4 — UX and accessibility (implementation complete; release verification deferred)
 
 - Keep keyboard focus in the event review after an event is removed.
 - Label event groups, associate date/time warnings with their fields, and announce review counts.
-- Theme options, localization, physical-device testing and assistive technology verification remain planned. Automated checks do not establish WCAG conformance.
+- English/Vietnamese interface and dark/light themes are available for the current page session.
+- Browser viewport and automated checks have been run; physical-device, screen-reader and comprehensive WCAG verification remain outstanding. Automated checks do not establish WCAG conformance.
 
 ## v1.0 — Document to calendar
 
