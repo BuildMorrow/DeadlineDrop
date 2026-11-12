@@ -49,3 +49,25 @@ if (Intl.DateTimeFormat().resolvedOptions().timeZone === 'America/New_York') {
     expect(() => createCalendar([{ ...event, confirmed: true }])).toThrow()
   })
 }
+
+
+describe('calendar text and timestamp validation', () => {
+  it.each(['Hidden\u0000control', 'Bad\u001bescape', 'Delete\u007f', 'Unpaired\ud800'])('rejects a title that cannot be represented safely: %s', title => {
+    const [event] = extractCandidates('Meeting 2027-05-20 10:00')
+    expect(isValidEvent({ ...event, title })).toBe(false)
+    expect(() => createCalendar([{ ...event, title, confirmed: true }])).toThrow()
+  })
+  it('preserves valid Unicode, tabs, and escaped newlines across folded lines', () => {
+    const [event] = extractCandidates('Meeting 2027-05-20 10:00')
+    const title = 'Họp 📅;\t' + 'Đ'.repeat(80) + '\nChi tiết, \\ notes'
+    const output = createCalendar([{ ...event, title, confirmed: true }])
+    expect(output.split('\r\n').every(line => new TextEncoder().encode(line).length <= 75)).toBe(true)
+    const component = new ICAL.Component(ICAL.parse(output)).getFirstSubcomponent('vevent')
+    expect(component.getFirstPropertyValue('summary')).toBe(title)
+  })
+  it('rejects an invalid timestamp and an ignored all-day end date', () => {
+    const [event] = extractCandidates('Deadline 2027-05-20')
+    expect(() => createCalendar([{ ...event, allDay: true, confirmed: true }], new Date(NaN))).toThrow('timestamp')
+    expect(isValidEvent({ ...event, allDay: true, endDate: '2027-05-22' })).toBe(false)
+  })
+})

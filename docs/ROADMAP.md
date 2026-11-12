@@ -27,6 +27,12 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - English/Vietnamese interface and dark/light themes are available for the current page session.
 - Browser viewport and automated checks have been run; physical-device, screen-reader and comprehensive WCAG verification remain outstanding. Automated checks do not establish WCAG conformance.
 
+## v0.5 — Calendar integration (implementation complete; broader interoperability testing deferred)
+
+- Export confirmed events together in a local ICS file; validate titles and date/time information.
+- Automated interoperability and batch-download tests, plus calendar import guidance.
+- A browser-downloaded sample was imported and read back in Google Calendar; Outlook and Apple Calendar imports remain unverified.
+
 ## v1.0 — Document to calendar
 
 - PDF input and multiple deadlines, event checklists, and improved language understanding.

@@ -89,3 +89,8 @@ In the Windows in-app browser, a synthetic PNG was selected and recognition was 
 ## v0.4 browser sample — 2026-11-09
 
 In the Windows in-app browser on a local development build, switching to Vietnamese and the light theme displayed translated controls. The input `Họp 03/04/2027 10:00` showed a Vietnamese ambiguity warning and disabled confirmation. At a 320 × 720 viewport override, a header overflow was found and fixed; afterwards document and viewport widths were both 305 CSS pixels. This is a simulated viewport, not a physical device or screen-reader test. Contrast and WCAG conformance were not comprehensively audited.
+
+
+## v0.5 browser download and Google Calendar import — 2026-11-12
+
+On Windows in the in-app browser, two synthetic events were reviewed and exported through the actual download control. The downloaded ICS contained a timed event at `2027-05-20T03:00Z` (10:00 in Asia/Saigon) and an all-day event on 2027-05-21 with exclusive end 2027-05-22. It was imported into the existing separate `DeadlineDrop QA - dữ liệu mẫu` calendar. Google reported 2 of 2 imported; a calendar readback confirmed the timed instant, all-day date and both titles. Google assigned the timed event a one-hour end because the file had none. The two synthetic events remain in that test calendar. This does not establish compatibility with Outlook or Apple Calendar.

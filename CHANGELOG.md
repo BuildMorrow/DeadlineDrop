@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — v0.5 calendar integration
+
+- Reject event titles containing invalid control characters or unpaired Unicode surrogates instead of generating invalid calendar content.
+- Test multi-event downloads and calendar interoperability; document import steps and provider privacy.
+
 ## Unreleased — v0.4 UX and accessibility
 
 - Add English/Vietnamese interface and dark/light theme controls without persisting user content.

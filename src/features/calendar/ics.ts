@@ -15,13 +15,22 @@ function fold(line: string): string {
   return parts.join('\r\n')
 }
 function utc(date: Date) { return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '') }
+// Reject invalid iCalendar value characters rather than silently changing a title.
+export function isValidTitle(title: string): boolean {
+  if (!title.trim()) return false
+  for (const character of title) {
+    const code = character.codePointAt(0)!
+    if ((code < 32 && code !== 9 && code !== 10 && code !== 13) || code === 127 || (code >= 0xd800 && code <= 0xdfff)) return false
+  }
+  return true
+}
 export function isValidEvent(event: Candidate): boolean {
-  if (!event.title.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(event.date)) return false
+  if (!isValidTitle(event.title) || !/^\d{4}-\d{2}-\d{2}$/.test(event.date)) return false
   let date: Temporal.PlainDate
   try { date = Temporal.PlainDate.from(event.date) } catch { return false }
   if (date.year < 1000) return false
   if (event.needsResolution) return false
-  if (event.allDay) return !event.rangeRequired && !event.endTime && date.add({ days: 1 }).year <= 9999
+  if (event.allDay) return !event.rangeRequired && !event.endTime && !event.endDate && date.add({ days: 1 }).year <= 9999
   const start = resolveLocal(event.date, event.time, event.choice)
   if (!start || new Date(start.epochMilliseconds).getUTCFullYear() > 9999) return false
   if (event.rangeRequired || event.endTime || event.endDate) {
@@ -31,6 +40,7 @@ export function isValidEvent(event: Candidate): boolean {
   return true
 }
 export function createCalendar(events: Candidate[], now = new Date()): string {
+  if (!Number.isFinite(now.getTime()) || now.getUTCFullYear() < 0 || now.getUTCFullYear() > 9999) throw new Error('Invalid calendar timestamp.')
   if (!events.length || events.some(event => !event.confirmed || !isValidEvent(event))) throw new Error('Only valid, confirmed events can be exported.')
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//BuildMorrow//DeadlineDrop//EN', 'CALSCALE:GREGORIAN']
   events.forEach((event, index) => {

@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import axe from 'axe-core'
+import ICAL from 'ical.js'
 import App from '../src/app/App'
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
@@ -14,6 +15,56 @@ describe('event review interaction', () => {
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Workshop 2027-05-20 10:00-11:00' } })
     fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
     expect((await axe.run(container, options)).violations).toEqual([])
+  })
+
+  it('explains why an invalid title cannot be confirmed', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    const title = screen.getByLabelText('EVENT TITLE')
+    fireEvent.change(title, { target: { value: 'Meeting\u0001' } })
+    expect(title.getAttribute('aria-invalid')).toBe('true')
+    expect(document.getElementById(title.getAttribute('aria-describedby')!)?.textContent).toContain('control characters')
+    expect((screen.getByRole('button', { name: 'Confirm event 1' }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('exports only confirmed events together through the download action', async () => {
+    const originalCreate = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
+    const originalRevoke = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL')
+    const create = vi.fn(() => 'blob:test')
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: create })
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    try {
+      render(<App />)
+      fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'One 2027-05-20 10:00\nTwo 2027-05-21 11:00\nUncertain 03/04/2027' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Confirm event 2' }))
+      expect((screen.getByRole('button', { name: 'Confirm event 3' }) as HTMLButtonElement).disabled).toBe(true)
+      vi.useFakeTimers()
+      fireEvent.click(screen.getByRole('button', { name: 'Export .ics' }))
+      vi.runAllTimers()
+      vi.useRealTimers()
+      expect(create).toHaveBeenCalledOnce()
+      expect(click).toHaveBeenCalledOnce()
+      const blob = create.mock.calls[0][0] as unknown as Blob
+      const data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.onerror = () => reject(reader.error)
+        reader.readAsText(blob)
+      })
+      const calendar = new ICAL.Component(ICAL.parse(data))
+      expect(calendar.getAllSubcomponents('vevent').map(event => event.getFirstPropertyValue('summary'))).toEqual(['One 2027-05-20 10:00', 'Two 2027-05-21 11:00'])
+    } finally {
+      vi.useRealTimers()
+      click.mockRestore()
+      if (originalCreate) Object.defineProperty(URL, 'createObjectURL', originalCreate)
+      else Reflect.deleteProperty(URL, 'createObjectURL')
+      if (originalRevoke) Object.defineProperty(URL, 'revokeObjectURL', originalRevoke)
+      else Reflect.deleteProperty(URL, 'revokeObjectURL')
+    }
   })
 
   it('switches to Vietnamese, translates ambiguity warnings, and preserves the review', () => {
