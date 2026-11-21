@@ -1,4 +1,5 @@
 import { runInNewContext } from 'node:vm'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import { pwaPlugin, serviceWorkerSource } from '../scripts/pwa.mjs'
 
@@ -51,6 +52,16 @@ describe('offline shell service worker', () => {
       ['https://example.com/DeadlineDrop/assets/app.js', 'POST'],
     ]) expect(await sw.request(url, 'cors', method)).toBeUndefined()
   })
+  it('keeps the old shell while a new worker installs, and removes it only on activation', async () => {
+    const sw = workerHarness()
+    sw.stores.set('deadlinedrop-shell:/DeadlineDrop/:old', new Map([['old-page', 'old']]))
+    await sw.lifecycle('install')
+    expect(sw.stores.has('deadlinedrop-shell:/DeadlineDrop/:old')).toBe(true)
+    expect(sw.stores.has('deadlinedrop-shell:/DeadlineDrop/:test')).toBe(true)
+    await sw.lifecycle('activate')
+    expect(sw.stores.has('deadlinedrop-shell:/DeadlineDrop/:old')).toBe(false)
+    expect(sw.stores.has('deadlinedrop-shell:/DeadlineDrop/:test')).toBe(true)
+  })
   it('cleans a failed install and does not remove another application cache', async () => {
     const sw = workerHarness('https://example.com/DeadlineDrop/assets/app.js')
     await expect(sw.lifecycle('install')).rejects.toThrow('Offline asset unavailable')
@@ -84,5 +95,24 @@ describe('production offline bundle', () => {
     expect(first).toContain('manifest.webmanifest')
     expect(first).not.toBe(build('two'))
     expect(first).not.toContain('skipWaiting')
+  })
+})
+
+
+describe('installation manifest', () => {
+  it('has scoped start URL and correctly sized local icons', () => {
+    const manifest = JSON.parse(readFileSync('public/manifest.webmanifest', 'utf8'))
+    const location = new URL('https://example.com/DeadlineDrop/manifest.webmanifest')
+    expect(new URL(manifest.start_url, location).href).toBe('https://example.com/DeadlineDrop/')
+    expect(new URL(manifest.scope, location).href).toBe('https://example.com/DeadlineDrop/')
+    expect(manifest.display).toBe('standalone')
+    for (const size of [192, 512]) {
+      const icon = manifest.icons.find((item: { sizes: string }) => item.sizes === `${size}x${size}`)
+      expect(icon.type).toBe('image/png')
+      const data = readFileSync(`public/${icon.src}`)
+      expect(data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))).toBe(true)
+      expect(data.readUInt32BE(16)).toBe(size)
+      expect(data.readUInt32BE(20)).toBe(size)
+    }
   })
 })
