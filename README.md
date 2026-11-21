@@ -20,6 +20,10 @@ To start from an image, open **Read text from an image**, choose a supported fil
 
 Paste a message containing dates, preferably one event per line. For relative dates, choose the date and IANA time zone the message refers to, then select **Find dates**. Changing either reference clears the current review. Review the original text and each candidate, edit any details, resolve warnings and confirm the events you want. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time, but calendar applications may add one on import; check the imported event. See [calendar import instructions](docs/CALENDAR_IMPORT.md).
 
+## Offline and installation
+
+The production build includes a web app manifest and caches the text-workflow shell after successful installation of the service worker. OCR resources are not included in the offline cache. Availability depends on the browser and its stored cache; see [offline and installation details](docs/OFFLINE.md).
+
 ## Getting started
 
 Install Node.js 20.19 or newer within the Node 20 LTS line (or Node 22.13+ / 24+) and npm, then run `npm install` and `npm run dev`. Open the local URL printed by Vite.

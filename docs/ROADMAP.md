@@ -33,6 +33,12 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Automated interoperability and batch-download tests, plus calendar import guidance.
 - A browser-downloaded sample was imported and read back in Google Calendar; Outlook and Apple Calendar imports remain unverified.
 
+## v0.6 — PWA and offline (in progress)
+
+- A web app manifest and production service worker for the local text-workflow shell; installation has not yet been verified across browsers.
+- Only known application assets are cached; user content and OCR resources are excluded.
+- Verification of installation, updates, real offline use across browsers and devices remains outstanding.
+
 ## v1.0 — Document to calendar
 
 - PDF input and multiple deadlines, event checklists, and improved language understanding.

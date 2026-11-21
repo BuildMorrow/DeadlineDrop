@@ -94,3 +94,8 @@ In the Windows in-app browser on a local development build, switching to Vietnam
 ## v0.5 browser download and Google Calendar import — 2026-11-12
 
 On Windows in the in-app browser, two synthetic events were reviewed and exported through the actual download control. The downloaded ICS contained a timed event at `2027-05-20T03:00Z` (10:00 in Asia/Saigon) and an all-day event on 2027-05-21 with exclusive end 2027-05-22. It was imported into the existing separate `DeadlineDrop QA - dữ liệu mẫu` calendar. Google reported 2 of 2 imported; a calendar readback confirmed the timed instant, all-day date and both titles. Google assigned the timed event a one-hour end because the file had none. The two synthetic events remain in that test calendar. This does not establish compatibility with Outlook or Apple Calendar.
+
+
+## v0.6 local offline sample — 2026-11-12
+
+In the Windows in-app browser, a production preview under `/DeadlineDrop/` was opened online and reloaded. After stopping the local preview server, the app reloaded, extracted and confirmed a synthetic timed event, and enabled export. In a first run an ICS download contained the expected UTC instant. On a subsequent build, a download verification attempt timed out, so that final download was not verified. Stopping the local server tests unavailability of that origin, not airplane mode or other browsers; installation prompts, update transitions, cache eviction, and offline OCR were not verified.

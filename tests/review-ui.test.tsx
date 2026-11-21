@@ -94,6 +94,16 @@ describe('event review interaction', () => {
     expect(container.querySelector('.app-shell')?.getAttribute('data-theme')).toBe('dark')
   })
 
+  it('announces an offline state without discarding input', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
+    fireEvent(window, new Event('offline'))
+    expect(screen.getByText(/browser reports you are offline/)).toBeTruthy()
+    expect((screen.getByLabelText('YOUR MESSAGE') as HTMLTextAreaElement).value).toBe('Meeting 2027-05-20 10:00')
+    fireEvent(window, new Event('online'))
+    expect(screen.queryByText(/browser reports you are offline/)).toBeNull()
+  })
+
   it('keeps focus in the review after removing events and labels each event group', () => {
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'One 2027-05-20 10:00\nTwo 2027-05-21 11:00' } })

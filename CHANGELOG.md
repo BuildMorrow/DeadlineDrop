@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — v0.6 PWA and offline (in progress)
+
+- Add a scoped web app manifest and offline cache for the production text-workflow shell.
+- Keep user content and OCR assets out of the service worker cache; updates do not force active pages to reload.
+
 ## Unreleased — v0.5 calendar integration
 
 - Reject event titles containing invalid control characters or unpaired Unicode surrogates instead of generating invalid calendar content.
