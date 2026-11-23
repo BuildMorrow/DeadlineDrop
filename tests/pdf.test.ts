@@ -26,7 +26,7 @@ describe('local PDF extraction', () => {
     const result = await readPdf(file, new AbortController().signal)
     expect(result.text).toContain('Meeting 2027-05-20 10:00')
     expect(result.text).toContain('Nộp bài 25 tháng 5 năm 2027')
-    expect(result.emptyPages).toBe(1)
+    expect(result.pages).toEqual(['Meeting 2027-05-20 10:00', '', 'Nộp bài 25 tháng 5 năm 2027'])
     expect(task.cleanup).toHaveBeenCalledTimes(3)
     expect(task.destroy).toHaveBeenCalled()
     expect(vi.mocked(getDocument).mock.calls[0][0]).toMatchObject({ isEvalSupported: false, disableFontFace: true, useWorkerFetch: false, enableXfa: false })

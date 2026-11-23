@@ -3,7 +3,7 @@ import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url'
 
 import { MAX_PDF_PAGES, MAX_PDF_CHARACTERS } from './limits'
 
-export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: string; emptyPages: number }> {
+export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: string; pages: string[] }> {
   if (signal.aborted) throw new Error('PDF reading cancelled.')
   const bytes = new Uint8Array(await file.arrayBuffer())
   if (signal.aborted) throw new Error('PDF reading cancelled.')
@@ -15,7 +15,6 @@ export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: 
     const doc = await task.promise
     if (doc.numPages > MAX_PDF_PAGES) throw new Error('PDF exceeds the 20-page limit.')
     const pages: string[] = []
-    let emptyPages = 0
     let total = 0
     for (let number = 1; number <= doc.numPages; number++) {
       if (signal.aborted) throw new Error('PDF reading cancelled.')
@@ -29,11 +28,10 @@ export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: 
           total += item.str.length + 1
           if (total > MAX_PDF_CHARACTERS) throw new Error('PDF text exceeds the 100,000-character limit.')
         }
-        if (!text.trim()) emptyPages++
         pages.push(text.trim())
       } finally { page.cleanup() }
     }
-    return { text: pages.join('\n\n').trim(), emptyPages }
+    return { text: pages.join('\n\n').trim(), pages }
   } finally {
     signal.removeEventListener('abort', abort)
     await task.destroy().catch(() => {})
