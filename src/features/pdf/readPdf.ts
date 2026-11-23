@@ -2,6 +2,7 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mj
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url'
 
 import { MAX_PDF_PAGES, MAX_PDF_CHARACTERS } from './limits'
+import { joinPdfText } from './text'
 
 export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: string; pages: string[] }> {
   if (signal.aborted) throw new Error('PDF reading cancelled.')
@@ -21,14 +22,14 @@ export async function readPdf(file: File, signal: AbortSignal): Promise<{ text: 
       const page = await doc.getPage(number)
       try {
         const content = await page.getTextContent()
-        let text = ''
+        const items: { str: string; hasEOL: boolean }[] = []
         for (const item of content.items) {
           if (!('str' in item)) continue
-          text += item.str + (item.hasEOL ? '\n' : ' ')
-          total += item.str.length + 1
+          items.push(item)
+          total += item.str.length + (item.hasEOL ? 1 : 0)
           if (total > MAX_PDF_CHARACTERS) throw new Error('PDF text exceeds the 100,000-character limit.')
         }
-        pages.push(text.trim())
+        pages.push(joinPdfText(items).trim())
       } finally { page.cleanup() }
     }
     return { text: pages.join('\n\n').trim(), pages }

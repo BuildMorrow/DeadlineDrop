@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { extractCandidates } from '../src/features/extraction/extract'
 import { createCalendar } from '../src/features/calendar/ics'
+import { joinPdfText } from '../src/features/pdf/text'
 
 describe('real PDF.js integration', () => {
   it('extracts two pages and passes the text through reviewed ICS export', async () => {
@@ -14,7 +15,7 @@ describe('real PDF.js integration', () => {
       const pages: string[] = []
       for (let index = 1; index <= document.numPages; index++) {
         const page = await document.getPage(index)
-        try { pages.push((await page.getTextContent()).items.map(item => 'str' in item ? item.str : '').join(' ')) }
+        try { pages.push(joinPdfText((await page.getTextContent()).items.filter(item => 'str' in item))) }
         finally { page.cleanup() }
       }
       const events = extractCandidates(pages.join('\n'))

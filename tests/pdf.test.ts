@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { MAX_PDF_BYTES, validatePdf } from '../src/features/pdf/limits'
 import { readPdf } from '../src/features/pdf/readPdf'
+import { extractCandidates } from '../src/features/extraction/extract'
 
 vi.mock('pdfjs-dist/legacy/build/pdf.mjs', () => ({ GlobalWorkerOptions: {}, getDocument: vi.fn() }))
 afterEach(() => vi.clearAllMocks())
@@ -36,6 +37,12 @@ describe('local PDF extraction', () => {
     await expect(readPdf(file, new AbortController().signal)).rejects.toThrow('20-page limit')
     expect(task.getPage).not.toHaveBeenCalled()
     expect(task.destroy).toHaveBeenCalled()
+  })
+  it('preserves split dates and times without inserting fabricated spaces', async () => {
+    setup([[{ str: 'Meeting ', hasEOL: false }, { str: '2027-', hasEOL: false }, { str: '05-20 ', hasEOL: false }, { str: '14:', hasEOL: false }, { str: '30', hasEOL: true }, { str: 'Nộp bài 25 tháng 5 năm 2027', hasEOL: true }]])
+    const result = await readPdf(file, new AbortController().signal)
+    expect(result.text).toBe('Meeting 2027-05-20 14:30\nNộp bài 25 tháng 5 năm 2027')
+    expect(extractCandidates(result.text).map(event => event.date)).toEqual(['2027-05-20', '2027-05-25'])
   })
   it('rejects overly large extracted text', async () => {
     const task = setup([[{ str: 'a'.repeat(100_001), hasEOL: false }]])
