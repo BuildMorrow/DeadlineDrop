@@ -41,7 +41,7 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 
 ## v1.0 — Document to calendar (in progress)
 
-- Experimental local extraction of selectable text from PDFs, with page, file and text limits and a page-by-page view of the original extraction; review is required. Scanned pages are not supported.
+- Experimental local extraction of selectable text from PDFs, with page, file and text limits, a page-by-page view and optional selection of pages to review; review is required. Scanned pages are not supported.
 - Scanned-document handling, event checklists, and improved language understanding remain planned.
 - Optional AI-assisted extraction with an explicit privacy design.
 
