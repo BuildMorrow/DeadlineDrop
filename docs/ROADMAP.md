@@ -39,8 +39,9 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Only known application assets are cached; user content and OCR resources are excluded.
 - Verification of installation, updates, real offline use across browsers and devices remains outstanding.
 
-## v1.0 — Document to calendar
+## v1.0 — Document to calendar (in progress)
 
-- PDF input and multiple deadlines, event checklists, and improved language understanding.
+- Experimental local extraction of selectable text from PDFs, with page, file and text limits; review is required. Scanned pages are not supported.
+- Multi-page review, scanned-document handling, event checklists, and improved language understanding remain planned.
 - Optional AI-assisted extraction with an explicit privacy design.
 

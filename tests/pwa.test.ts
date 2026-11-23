@@ -83,7 +83,8 @@ describe('production offline bundle', () => {
       let output = ''
       pwaPlugin().generateBundle.call({ emitFile: (file: { source: string }) => { output = file.source } }, {}, {
         'index.html': { type: 'asset', fileName: 'index.html', source: '<html></html>' },
-        'assets/app.js': { type: 'chunk', fileName: 'assets/app.js', code },
+        'assets/app.js': { type: 'chunk', fileName: 'assets/app.js', code, isEntry: true, imports: [] },
+        'assets/pdf.js': { type: 'chunk', fileName: 'assets/pdf.js', code: 'lazy', isEntry: false, imports: [] },
         'assets/app.css': { type: 'asset', fileName: 'assets/app.css', source: 'body{}' },
         'ocr/model.gz': { type: 'asset', fileName: 'ocr/model.gz', source: 'model' },
       })
@@ -92,6 +93,7 @@ describe('production offline bundle', () => {
     const first = build('one')
     expect(first).toContain('assets/app.js')
     expect(first).not.toContain('ocr/model.gz')
+    expect(first).not.toContain('assets/pdf.js')
     expect(first).toContain('manifest.webmanifest')
     expect(first).not.toBe(build('two'))
     expect(first).not.toContain('skipWaiting')

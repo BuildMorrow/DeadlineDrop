@@ -17,3 +17,6 @@ Image input runs Tesseract.js in a browser worker. The build copies the pinned w
 Vitest covers representative extraction and calendar serialization cases. CI runs lint, type checking, tests and build. User content remains in the browser; avoid logging, analytics, or network transmission of content. Optional future AI requires explicit consent and a separate privacy design.
 
 Explicit offsets are converted using Temporal. A bare negative offset overlaps with range syntax and requires an explicit choice. Unsupported zone clues require editing both the local date and time before applying a correction. This is a limited parser and cannot identify every natural-language zone. See the manual QA checklist before release.
+
+
+Experimental PDF input reads local file bytes with the pinned PDF.js 5.5.207 in a same-origin worker. The version supports the project Node 20 baseline; review advisories and upgrade to a supported patched release when the Node baseline can be raised. It limits file size, page count, and extracted characters, disables script evaluation and XFA, and requires the user to review and explicitly transfer text. No OCR is performed for scanned pages; empty pages are reported. PDF reading order may not match the visual layout. PDF code and worker are loaded on demand and are excluded from the PWA offline shell.

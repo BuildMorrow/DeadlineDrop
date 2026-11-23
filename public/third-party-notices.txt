@@ -13,3 +13,7 @@ The Apache License text is available at ocr/APACHE-2.0.txt after building.
 Source license texts for libraries referenced by the compiled OCR core are
 included in ocr-licenses/README.txt and the adjacent files. A complete audit of
 compiler/runtime code included in the WASM remains a release prerequisite.
+
+PDF.js (pdfjs-dist 5.5.207): Apache License 2.0.
+Source: https://github.com/mozilla/pdf.js
+License text: pdfjs-license.txt

@@ -4,7 +4,7 @@ This document describes planned work, dependencies and release gates. Complexity
 
 ## Current audit
 
-Phase 0 foundation and the v0.1 text workflow are implemented. The app runs locally in React, TypeScript and Vite, uses Temporal for local timezone resolution, and generates ICS after review. It has deterministic parsing with known language and timezone limitations. Representative ICS output is parsed by an independent iCalendar parser and four synthetic events were imported into Google Calendar; Google added a one-hour duration for timed events without an end. The owner chose to close issue #5 while deferring screen-reader verification; full accessibility and physical-device QA remain incomplete. GitHub Pages deployment and v0.1.0 release remain unverified. The v0.2 local image OCR scope is implemented; the scoped v0.3 relative-date workflow is implemented; PWA is in progress and PDF support is planned.
+Phase 0 foundation and the v0.1 text workflow are implemented. The app runs locally in React, TypeScript and Vite, uses Temporal for local timezone resolution, and generates ICS after review. It has deterministic parsing with known language and timezone limitations. Representative ICS output is parsed by an independent iCalendar parser and four synthetic events were imported into Google Calendar; Google added a one-hour duration for timed events without an end. The owner chose to close issue #5 while deferring screen-reader verification; full accessibility and physical-device QA remain incomplete. GitHub Pages deployment and v0.1.0 release remain unverified. The v0.2 local image OCR scope is implemented; the scoped v0.3 relative-date workflow is implemented; PWA and experimental PDF text extraction are in progress.
 
 ## Milestones
 
@@ -16,7 +16,7 @@ Phase 0 foundation and the v0.1 text workflow are implemented. The app runs loca
 | P1 | 5 — v0.4 UX and accessibility | Implementation complete; release verification deferred | L | Phase 2 usable UI; phase 3/4 interactions | Responsive dark/light themes, English/Vietnamese localization, keyboard and assistive technology checks, WCAG 2.2 AA review, optional disclosed local drafts if implemented. |
 | P1 | 6 — v0.5 calendar integration | Implementation complete; broader import verification deferred | L | Stable event data model | Standards validation of ICS, correct times and encoding, tested imports, batch export and documented calendar instructions; no automatic event creation or OAuth without approval. |
 | P2 | 7 — v0.6 PWA and offline | In progress | L | Stable static app and asset strategy | Installable manifest; tested offline support and safe update/cache behavior; no sensitive content cached unintentionally; offline OCR only claimed after verification. |
-| P2 | 8 — v1.0 documents | Planned | XL | OCR, extraction and event review | Local PDF text extraction, safe file limits and errors, multi-page review, scanned-document handling where feasible, event checklists and local privacy verification. |
+| P2 | 8 — v1.0 documents | In progress | XL | OCR, extraction and event review | Local PDF text extraction, safe file limits and errors, multi-page review, scanned-document handling where feasible, event checklists and local privacy verification. |
 | P2 | 9 — open-source growth | Planned / ongoing | M | Verified product and release evidence | Accurate documentation, verified screenshots, contributor tasks and launch copy; publication requires owner approval. |
 
 ## Actionable tasks and risks

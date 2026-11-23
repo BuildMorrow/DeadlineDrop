@@ -7,7 +7,17 @@ export function pwaPlugin() {
     name: 'deadlinedrop-offline-shell',
     enforce: 'post',
     generateBundle(_options, bundle) {
-      const appFiles = Object.values(bundle).filter(item => item.type === 'chunk' || /\.css$/.test(item.fileName) || item.fileName === 'index.html')
+      // Cache entry chunks and their static imports only; lazy PDF/OCR code stays on demand.
+      const entryFiles = new Set()
+      const visit = file => {
+        if (entryFiles.has(file)) return
+        const item = bundle[file]
+        if (!item || item.type !== 'chunk') return
+        entryFiles.add(file)
+        for (const dependency of item.imports) visit(dependency)
+      }
+      for (const item of Object.values(bundle)) if (item.type === 'chunk' && item.isEntry) visit(item.fileName)
+      const appFiles = Object.values(bundle).filter(item => entryFiles.has(item.fileName) || /\.css$/.test(item.fileName) || item.fileName === 'index.html')
       const digest = createHash('sha256')
       for (const item of appFiles.sort((a, b) => a.fileName.localeCompare(b.fileName))) {
         digest.update(item.fileName)

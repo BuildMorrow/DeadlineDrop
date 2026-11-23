@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — v1.0 document input (in progress)
+
+- Add experimental local PDF selectable-text extraction, with file, page and extracted-text limits, cancellation and required text review.
+- Warn when pages have no selectable text; scanned PDF OCR remains unsupported.
+
 ## Unreleased — v0.6 PWA and offline (in progress)
 
 - Add a scoped web app manifest and offline cache for the production text-workflow shell.
