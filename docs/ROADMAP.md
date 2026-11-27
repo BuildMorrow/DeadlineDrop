@@ -41,7 +41,7 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 
 ## v1.0 — Document to calendar (in progress)
 
-- Experimental local extraction of selectable text from PDFs, with page, file and text limits, a page-by-page view and optional selection of pages to review; review is required. Experimental OCR handles one selected page at a time; a synthetic two-page English/Vietnamese PDF is tested in Node, while real scanned-document and browser validation remains outstanding.
+- Experimental local extraction of selectable text from PDFs, with page, file and text limits, a page-by-page view and optional selection of pages to review; review is required. Experimental OCR can process up to five selected pages sequentially with per-page review; a synthetic two-page English/Vietnamese PDF is tested in Node, while browser and real scanned-document validation remains outstanding.
 - Manual event checklists can be marked complete before export and included as plain text in event descriptions; calendar task interaction is not supported.
 - Broader scanned-document handling and improved language understanding remain planned.
 - Optional AI-assisted extraction with an explicit privacy design.

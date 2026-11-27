@@ -4,6 +4,7 @@
 
 - Add experimental local PDF selectable-text extraction, with file, page and extracted-text limits, cancellation and required text review.
 - Warn when pages have no selectable text; offer experimental single-page OCR with an editable result.
+- Add experimental sequential OCR for up to five PDF pages with individual review, cancellation and explicit failure states.
 - Allow users to write an optional checklist for each event, exported as plain text in its calendar description.
 - Allow checklist completion to be reviewed before export; preserve completion markers in the description.
 

@@ -27,6 +27,7 @@ describe('PDF review controls', () => {
     expect(screen.getByText('Some pages contained no selectable text. Review the original PDF carefully.')).toBeTruthy()
     expect(screen.getByText('Page 2')).toBeTruthy()
     expect(screen.getByText('No selectable text on this page.')).toBeTruthy()
+    expect(screen.getByText('Read several scanned pages (experimental)')).toBeTruthy()
     expect(useText).not.toHaveBeenCalled()
     fireEvent.change(result, { target: { value: 'Corrected 2027-05-21' } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to message' }))
