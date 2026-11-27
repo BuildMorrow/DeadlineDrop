@@ -8,6 +8,17 @@ import App from '../src/app/App'
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('event review interaction', () => {
+  it('requests a browser warning before leaving with text and removes it when cleared', () => {
+    render(<App />)
+    const before = new Event('beforeunload', { cancelable: true })
+    expect(window.dispatchEvent(before)).toBe(true)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Private draft' } })
+    const dirty = new Event('beforeunload', { cancelable: true })
+    expect(window.dispatchEvent(dirty)).toBe(false)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: '' } })
+    const cleared = new Event('beforeunload', { cancelable: true })
+    expect(window.dispatchEvent(cleared)).toBe(true)
+  })
   it('reveals relative date settings when needed and keeps source text collapsible', () => {
     render(<App />)
     const settings = screen.getByText('Relative date settings').closest('details')!
