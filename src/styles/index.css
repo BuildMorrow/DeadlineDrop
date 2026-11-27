@@ -66,4 +66,30 @@
 
 @media(max-width:420px){.topbar{height:auto}.topbar-inner{flex-wrap:wrap;gap:10px;padding-top:12px;padding-bottom:12px}.topbar-right{width:100%;justify-content:flex-end;gap:10px}}
 
+/* Subtle feedback keeps the workspace calm and respects motion preferences. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero, .workspace-heading, .workspace-grid { animation: settle-in 480ms ease-out both; }
+  .workspace-heading { animation-delay: 60ms; }
+  .workspace-grid { animation-delay: 100ms; }
+  .event-card { animation: event-appear 240ms ease-out both; }
+  .button, .icon-button, .theme-toggle, .text-button, .github-link,
+  .source-input, .field-input, .panel, .event-card, .image-ocr summary {
+    transition: background-color 180ms ease, border-color 180ms ease,
+      color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+  @media (hover: hover) {
+    .button:not(:disabled):not([aria-disabled="true"]):hover { transform: translateY(-2px); }
+    .button:not(:disabled):not([aria-disabled="true"]):active { transform: translateY(0); }
+    .icon-button:hover { transform: scale(1.06); }
+    .text-button:hover, .github-link:hover { color: #b9e4ff; }
+    [data-theme="light"] .text-button:hover, [data-theme="light"] .github-link:hover { color: #103a52; }
+    .event-card:hover { border-color: #5c819c; }
+  }
+  @keyframes settle-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes event-appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+}
+
+.source-input:focus-visible, .field-input:focus-visible { border-color: #8ed0ff; box-shadow: 0 0 0 3px rgba(142, 208, 255, .15); }
+[data-theme="light"] .source-input:focus-visible, [data-theme="light"] .field-input:focus-visible { border-color: #125d91; box-shadow: 0 0 0 3px rgba(18, 93, 145, .14); }
+
 .offline-notice{margin:18px 0 0;padding:12px 14px;border:1px solid #765e35;border-radius:9px;background:#382f20;color:#ffe2a4;font-size:13px;line-height:1.5}[data-theme="light"] .offline-notice{background:#fff7e8;border-color:#a47a34;color:#5c4014}
