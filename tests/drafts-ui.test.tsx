@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import App from '../src/app/App'
-import { DRAFT_KEY } from '../src/features/drafts/storage'
+import { clearDrafts, createBackup, DRAFT_KEY, saveDraft } from '../src/features/drafts/storage'
 
 afterEach(() => { cleanup(); localStorage.clear(); vi.restoreAllMocks() })
 describe('draft workflow', () => {
@@ -48,8 +48,7 @@ describe('draft workflow', () => {
     localStorage.setItem(DRAFT_KEY, 'broken')
     render(<App />)
     fireEvent.click(screen.getByText('Saved drafts on this device'))
-    const panel = screen.getByText('Saved drafts on this device').closest('details')!
-    expect(within(panel).getByRole('status').textContent).toContain('unreadable')
+    expect(screen.getByText('Saved drafts are unreadable or use an unsupported version. They were not changed.')).toBeTruthy()
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20' } })
     fireEvent.change(screen.getByLabelText('DRAFT NAME'), { target: { value: 'Work' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save current message' }))
@@ -74,5 +73,22 @@ describe('draft workflow', () => {
     expect((screen.getByLabelText('DATE') as HTMLInputElement).value).toBe('2027-05-21')
     fireEvent.click(screen.getByRole('button', { name: 'Delete draft Relative' }))
     expect(screen.queryByRole('button', { name: 'Load draft Relative' })).toBeNull()
+  })
+  it('imports a backup and still requires a fresh review before calendar export', async () => {
+    saveDraft(localStorage, 'Backup', { text: 'Meeting 2027-05-20 10:00', referenceDate: '', referenceZone: 'UTC' })
+    const backup = createBackup(localStorage)
+    clearDrafts(localStorage)
+    const file = new File([backup], 'backup.json', { type: 'application/json' })
+    Object.defineProperty(file, 'text', { value: async () => backup })
+    render(<App />)
+    fireEvent.click(screen.getByText('Saved drafts on this device'))
+    fireEvent.click(screen.getByText('Back up or import drafts'))
+    fireEvent.change(screen.getByLabelText('SELECT BACKUP JSON'), { target: { files: [file] } })
+    await screen.findByText('Backup')
+    fireEvent.click(screen.getByRole('button', { name: 'Import these drafts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Load draft Backup' }))
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    expect(screen.getByRole('button', { name: 'Confirm event 1' })).toBeTruthy()
   })
 })

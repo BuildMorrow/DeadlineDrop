@@ -122,5 +122,9 @@
 [data-theme="light"] .drafts-panel summary:focus-visible { outline-color: #125d91; }
 [data-theme="light"] .drafts-list li { background: #eaf2f6; }
 [data-theme="light"] .drafts-list span { color: #425e70; }
+.drafts-backup { margin-top: 16px; border-top: 1px solid #385066; padding-top: 12px; }
+.drafts-backup .field-label { margin-top: 12px; }
+.drafts-backup li { overflow-wrap: anywhere; }
+[data-theme="light"] .drafts-backup { border-color: #b7ccd8; }
 
 .offline-notice{margin:18px 0 0;padding:12px 14px;border:1px solid #765e35;border-radius:9px;background:#382f20;color:#ffe2a4;font-size:13px;line-height:1.5}[data-theme="light"] .offline-notice{background:#fff7e8;border-color:#a47a34;color:#5c4014}

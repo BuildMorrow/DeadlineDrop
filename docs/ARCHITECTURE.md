@@ -1,6 +1,6 @@
 # Architecture
 
-DeadlineDrop is a static React and TypeScript frontend. It keeps active input and candidates in browser memory. Optional user-initiated drafts store only message text and reference settings in localStorage; they never restore candidates or confirmations. Saved draft data is versioned and validated before use.
+DeadlineDrop is a static React and TypeScript frontend. It keeps active input and candidates in browser memory. Optional user-initiated drafts store only message text and reference settings in localStorage; they never restore candidates or confirmations. Saved draft data is versioned and validated before use. JSON backup import validates the entire file, previews names and performs one storage write only after explicit approval; duplicate names or IDs, invalid data and size limits prevent import without changing existing drafts.
 
 ## Responsibilities and flow
 

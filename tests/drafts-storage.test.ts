@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
-import { clearDrafts, deleteDraft, DRAFT_KEY, MAX_DRAFTS, MAX_DRAFT_TEXT, readDrafts, saveDraft } from '../src/features/drafts/storage'
+import { clearDrafts, createBackup, deleteDraft, DRAFT_KEY, importBackup, MAX_DRAFTS, MAX_DRAFT_TEXT, parseBackup, readDrafts, saveDraft } from '../src/features/drafts/storage'
 
 const content = { text: 'Meeting 2027-05-20 10:00', referenceDate: '2027-05-20', referenceZone: 'Asia/Bangkok' }
 afterEach(() => localStorage.clear())
@@ -45,5 +45,49 @@ describe('opt-in local drafts', () => {
   it('reports storage failures without pretending to save', () => {
     const storage = { getItem: () => null, setItem: () => { throw new Error('quota') } } as unknown as Storage
     expect(() => saveDraft(storage, 'Draft', content)).toThrow('unavailable')
+  })
+  it('does not write a payload too large to read back even if text is within the per-draft limit', () => {
+    const escaped = { ...content, text: '\u0000'.repeat(MAX_DRAFT_TEXT) }
+    saveDraft(localStorage, 'First', escaped)
+    const old = localStorage.getItem(DRAFT_KEY)
+    expect(() => saveDraft(localStorage, 'Second', escaped)).toThrow('storage_limit')
+    expect(localStorage.getItem(DRAFT_KEY)).toBe(old)
+    expect(readDrafts(localStorage)).toHaveLength(1)
+  })
+  it('exports and imports validated drafts without restoring any event data', () => {
+    saveDraft(localStorage, 'First', content)
+    const backup = createBackup(localStorage)
+    const data = JSON.parse(backup)
+    data.drafts[0].confirmed = true
+    data.drafts[0].events = [{ date: '2020-01-01' }]
+    const parsed = parseBackup(JSON.stringify(data))
+    expect(parsed[0]).not.toHaveProperty('confirmed')
+    expect(parsed[0]).not.toHaveProperty('events')
+    clearDrafts(localStorage)
+    const result = importBackup(localStorage, JSON.stringify(data))
+    expect(result[0].text).toBe(content.text)
+    expect(readDrafts(localStorage)).toEqual(result)
+  })
+  it('rejects duplicate imports, invalid or oversized input without changing storage', () => {
+    saveDraft(localStorage, 'First', content)
+    const backup = createBackup(localStorage)
+    const old = localStorage.getItem(DRAFT_KEY)
+    expect(() => importBackup(localStorage, backup)).toThrow('duplicate')
+    expect(() => importBackup(localStorage, '{bad')).toThrow('invalid')
+    expect(() => importBackup(localStorage, 'x'.repeat(6_100_001))).toThrow('invalid')
+    expect(localStorage.getItem(DRAFT_KEY)).toBe(old)
+  })
+  it('rechecks current drafts at import time and preserves data when storage fails', () => {
+    saveDraft(localStorage, 'First', content)
+    const backup = createBackup(localStorage)
+    clearDrafts(localStorage)
+    expect(parseBackup(backup)).toHaveLength(1)
+    saveDraft(localStorage, 'First', { ...content, text: 'Newer work' })
+    const before = localStorage.getItem(DRAFT_KEY)
+    expect(() => importBackup(localStorage, backup)).toThrow('duplicate')
+    expect(localStorage.getItem(DRAFT_KEY)).toBe(before)
+    clearDrafts(localStorage)
+    const storage = { getItem: () => null, setItem: () => { throw new Error('quota') } } as unknown as Storage
+    expect(() => importBackup(storage, backup)).toThrow('unavailable')
   })
 })

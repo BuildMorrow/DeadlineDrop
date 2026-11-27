@@ -3,6 +3,7 @@
 ## Unreleased — local drafts (in progress)
 
 - Add optional named browser-local drafts for message text and reference settings, with explicit save, load and delete. Event reviews are never restored.
+- Add explicit JSON draft backup and previewed import, reject conflicts, and prevent oversized saved data from becoming unreadable.
 
 ## Unreleased — v1.0 document input (in progress)
 
