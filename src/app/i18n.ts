@@ -59,6 +59,7 @@ const vietnamese: Record<string, string> = {
   "Choose pages and rebuild the text to work with only those pages. Rebuilding replaces any edits below.": "Chọn trang rồi ghép lại để chỉ xử lý những trang đó. Việc ghép lại sẽ thay thế các chỉnh sửa bên dưới.",
   "Rebuild text from selected pages": "Ghép lại văn bản từ các trang đã chọn",
   "Text rebuilt from the selected pages. Review it before using it.": "Đã ghép lại văn bản từ các trang đã chọn. Hãy kiểm tra trước khi sử dụng.",
+  "Page selection changed. Rebuild the text or restore the previous selection before using it.": "Lựa chọn trang đã thay đổi. Hãy ghép lại văn bản hoặc khôi phục lựa chọn trước đó trước khi sử dụng.",
   "Choose a PDF file.": "Hãy chọn tệp PDF.",
   "Choose a PDF between 1 byte and 8 MB.": "Hãy chọn PDF có kích thước từ 1 byte đến 8 MB.",
   "PDF reading cancelled.": "Đã hủy đọc PDF.",
