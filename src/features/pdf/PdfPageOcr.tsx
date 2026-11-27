@@ -27,7 +27,7 @@ export function PdfPageOcr({ file, pageCount, language, onAppend }: { file: File
     setResult(''); setResultSource(null); setStatus(message); readButton.current?.focus()
   }
   async function recognize() {
-    if (busy || resultSource) return
+    if (busy || controller.current || resultSource) return
     const number = Number(page)
     if (!Number.isInteger(number) || number < 1 || number > pageCount) { setStatus('Choose a valid PDF page.'); return }
     const run = ++generation.current

@@ -42,6 +42,19 @@ describe('experimental scanned PDF page OCR', () => {
     expect(startWorker).not.toHaveBeenCalled()
     expect(append).not.toHaveBeenCalled()
   })
+  it('starts only one recognition when the button is activated repeatedly', async () => {
+    let finish!: (image: File) => void
+    vi.mocked(renderPdfPage).mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+    render(<PdfPageOcr file={file} pageCount={1} language="en" onAppend={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read a scanned PDF page (experimental)'))
+    const read = screen.getByRole('button', { name: 'Read page' })
+    fireEvent.click(read)
+    fireEvent.click(read)
+    await waitFor(() => expect(renderPdfPage).toHaveBeenCalledOnce())
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    finish(new File(['image'], 'page.png'))
+    expect(startWorker).not.toHaveBeenCalled()
+  })
   it('retains page provenance and edited text until the result is added or discarded', async () => {
     vi.mocked(renderPdfPage).mockResolvedValueOnce(new File(['image'], 'page.png'))
     vi.mocked(startWorker).mockResolvedValueOnce({ recognize: vi.fn().mockResolvedValue({ data: { text: 'Original result' } }), terminate: vi.fn().mockResolvedValue(undefined) })
