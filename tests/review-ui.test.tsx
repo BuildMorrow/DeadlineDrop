@@ -8,6 +8,20 @@ import App from '../src/app/App'
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('event review interaction', () => {
+  it('reveals relative date settings when needed and keeps source text collapsible', () => {
+    render(<App />)
+    const settings = screen.getByText('Relative date settings').closest('details')!
+    expect(settings.open).toBe(false)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting tomorrow 10:00' } })
+    expect(settings.open).toBe(true)
+    fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR RELATIVE DATES'), { target: { value: '2027-05-20' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    const original = screen.getByText('Original text').closest('details')!
+    expect(original.open).toBe(false)
+    expect(within(original).getByText('Meeting tomorrow 10:00')).toBeTruthy()
+    fireEvent.click(screen.getByText('Original text'))
+    expect(original.open).toBe(true)
+  })
   it('requires confirmation again when the checklist changes', () => {
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
