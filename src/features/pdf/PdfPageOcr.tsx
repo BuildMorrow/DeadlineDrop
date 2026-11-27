@@ -7,6 +7,7 @@ export function PdfPageOcr({ file, pageCount, language, onAppend }: { file: File
   const [page, setPage] = useState('1')
   const [ocrLanguage, setOcrLanguage] = useState('eng')
   const [result, setResult] = useState('')
+  const [resultSource, setResultSource] = useState<{ page: number; language: string } | null>(null)
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const generation = useRef(0)
@@ -22,13 +23,16 @@ export function PdfPageOcr({ file, pageCount, language, onAppend }: { file: File
     generation.current++; controller.current?.abort(); void worker.current?.terminate().catch(() => {})
     controller.current = null; worker.current = null; finish(); setStatus('PDF OCR cancelled.')
   }
+  function clearResult(message: string) {
+    setResult(''); setResultSource(null); setStatus(message); readButton.current?.focus()
+  }
   async function recognize() {
-    if (busy) return
+    if (busy || resultSource) return
     const number = Number(page)
     if (!Number.isInteger(number) || number < 1 || number > pageCount) { setStatus('Choose a valid PDF page.'); return }
     const run = ++generation.current
     const current = new AbortController(); controller.current = current
-    setBusy(true); setResult(''); setStatus('Reading the PDF page locally…')
+    setBusy(true); setStatus('Reading the PDF page locally…')
     let active: OcrWorker | null = null
     let timeout: ReturnType<typeof setTimeout> | undefined
     try {
@@ -46,6 +50,7 @@ export function PdfPageOcr({ file, pageCount, language, onAppend }: { file: File
       if (run !== generation.current) return
       if (recognized.length > 100_000) throw new Error('OCR text too long')
       setResult(recognized)
+      setResultSource(recognized.trim() ? { page: number, language: ocrLanguage } : null)
       setStatus(recognized.trim() ? 'Review OCR text against the PDF before adding it.' : 'No text found on this page.')
     } catch {
       if (run === generation.current) setStatus('Could not read this PDF page. Check its size or OCR resources and try again.')
@@ -59,10 +64,11 @@ export function PdfPageOcr({ file, pageCount, language, onAppend }: { file: File
   }
   return <details className="pdf-ocr"><summary>{t('Read a scanned PDF page (experimental)')}</summary>
     <p>{t('Choose one page and language. OCR runs on your device but downloads resources from this site. It can misread dates; compare with the PDF.')}</p>
+    <p>{t('OCR text is appended to the combined text. Check the order against the original PDF.')}</p>
     <label className="field-label">{t('PDF PAGE')}<input className="field-input" type="number" min="1" max={pageCount} value={page} disabled={busy} onChange={e => setPage(e.target.value)} /></label>
     <label className="field-label">{t('IMAGE LANGUAGE')}<select className="field-input" value={ocrLanguage} disabled={busy} onChange={e => setOcrLanguage(e.target.value)}><option value="eng">{t('English')}</option><option value="vie">{t('Vietnamese')}</option></select></label>
-    <div className="resolution-actions"><button ref={readButton} type="button" className="button button-outline" aria-disabled={busy} onClick={() => void recognize()}>{t('Read page')}</button>{busy && <button ref={cancelButton} type="button" className="button button-outline" onClick={cancel}>{t('Cancel')}</button>}</div>
+    <div className="resolution-actions"><button ref={readButton} type="button" className="button button-outline" aria-disabled={busy || Boolean(resultSource)} onClick={() => void recognize()}>{t('Read page')}</button>{busy && <button ref={cancelButton} type="button" className="button button-outline" onClick={cancel}>{t('Cancel')}</button>}</div>
     <p role="status" aria-live="polite">{t(status)}</p>
-    {result && <><label className="field-label">{t('PAGE OCR TEXT')}<textarea className="source-input" value={result} onChange={e => setResult(e.target.value)} /></label><button type="button" className="button button-outline" disabled={busy || !result.trim()} onClick={() => { onAppend(result.trim()); setResult(''); setStatus('OCR text added. Review the combined text before using it.') }}>{t('Add OCR text')}</button></>}
+    {resultSource && <><p>{t('OCR result from page')} {resultSource.page} · {t(resultSource.language === 'vie' ? 'Vietnamese' : 'English')}</p><label className="field-label">{t('PAGE OCR TEXT')}<textarea className="source-input" value={result} onChange={e => setResult(e.target.value)} /></label><div className="resolution-actions"><button type="button" className="button button-outline" disabled={busy || !result.trim()} onClick={() => { onAppend(result.trim()); clearResult('OCR text added. Review the combined text before using it.') }}>{t('Add OCR text')}</button><button type="button" className="button button-outline" onClick={() => clearResult('OCR result discarded.')}>{t('Discard OCR result')}</button></div></>}
   </details>
 }
