@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — event overview (in progress)
+
+- Add date-grouped candidate navigation, title search and review-status filters without changing confirmation or export behavior.
+
 ## Unreleased — local drafts (in progress)
 
 - Add optional named browser-local drafts for message text and reference settings, with explicit save, load and delete. Event reviews are never restored.

@@ -1,5 +1,9 @@
 # Manual QA checklist
 
+## Event overview sample — 2026-11-28
+
+On Windows in the in-app browser with timezone `Asia/Saigon`, a production preview grouped three synthetic events under May 20, May 23, and an unresolved-date section. Filtering to needs-correction showed the ambiguous event, and its review button moved keyboard focus to the corresponding event heading. This sample does not establish screen-reader behavior, mobile-device usability or full accessibility conformance.
+
 ## Local draft sample — 2026-11-28
 
 On Windows in the in-app browser, a production preview at `http://127.0.0.1:5185/DeadlineDrop/` saved a synthetic message as `Example QA`. A second tab loaded that draft and displayed the original message with export disabled until a new review. The sample remains in local storage for that localhost origin. This check does not establish behavior in other browsers, devices, private mode, or storage failure scenarios.

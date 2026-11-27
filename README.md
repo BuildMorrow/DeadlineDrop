@@ -30,6 +30,8 @@ For a PDF, open **Read text from a PDF**, choose a file, and compare the extract
 
 Paste a message containing dates, preferably one event per line. For relative dates, open **Relative date settings** and choose the date and IANA time zone the message refers to, then select **Find dates**. Changing either reference clears the current review. Open **Original text** for each candidate and compare it with the message, edit any details, resolve warnings and confirm the events you want. Collapsing original text only hides it from view; event titles and the input remain visible. Choose **Export .ics** and import the downloaded file into your calendar. The app does not infer a duration for timed events without an end time, but calendar applications may add one on import; check the imported event. See [calendar import instructions](docs/CALENDAR_IMPORT.md).
 
+For longer messages, open **Event overview** to search titles, filter by review status and jump to a candidate's review card. Dates that cannot be resolved are listed separately. This is a navigation aid: filters do not change which confirmed events are exported.
+
 ## Offline and installation
 
 The production build includes a web app manifest and caches the text-workflow shell after successful installation of the service worker. OCR and PDF resources are not included in the offline cache. Availability depends on the browser and its stored cache; see [offline and installation details](docs/OFFLINE.md).
