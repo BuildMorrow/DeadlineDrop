@@ -3,7 +3,7 @@
 ## Unreleased — v1.0 document input (in progress)
 
 - Add experimental local PDF selectable-text extraction, with file, page and extracted-text limits, cancellation and required text review.
-- Warn when pages have no selectable text; scanned PDF OCR remains unsupported.
+- Warn when pages have no selectable text; offer experimental single-page OCR with an editable result.
 - Allow users to write an optional checklist for each event, exported as plain text in its calendar description.
 - Allow checklist completion to be reviewed before export; preserve completion markers in the description.
 

@@ -16,7 +16,7 @@ describe('PDF review controls', () => {
     fireEvent.change(screen.getByLabelText('PDF (MAX 8 MB, 20 PAGES)'), { target: { files: [sample()] } })
     fireEvent.click(screen.getByRole('button', { name: 'Read PDF' }))
     const result = await screen.findByLabelText('PDF TEXT')
-    expect(screen.getByRole('status').textContent).toContain('Some pages')
+    expect(screen.getByText('Some pages contained no selectable text. Review the original PDF carefully.')).toBeTruthy()
     expect(screen.getByText('Page 2')).toBeTruthy()
     expect(screen.getByText('No selectable text on this page.')).toBeTruthy()
     expect(useText).not.toHaveBeenCalled()

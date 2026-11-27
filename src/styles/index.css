@@ -105,5 +105,10 @@
 .checklist-items label { display: flex; align-items: baseline; gap: 7px; padding: 4px 0; overflow-wrap: anywhere; }
 .checklist-items input { flex: none; accent-color: #8bc6ec; }
 [data-theme="light"] .checklist-items { border-color: #b7ccd8; color: #17374d; }
+.pdf-ocr { margin: 14px 0; padding: 12px; border: 1px solid #385066; border-radius: 9px; }
+.pdf-ocr summary { cursor: pointer; font-weight: 700; }
+.pdf-ocr summary:focus-visible { outline: 3px solid #8ed0ff; outline-offset: 3px; }
+[data-theme="light"] .pdf-ocr { border-color: #b7ccd8; }
+[data-theme="light"] .pdf-ocr summary:focus-visible { outline-color: #125d91; }
 
 .offline-notice{margin:18px 0 0;padding:12px 14px;border:1px solid #765e35;border-radius:9px;background:#382f20;color:#ffe2a4;font-size:13px;line-height:1.5}[data-theme="light"] .offline-notice{background:#fff7e8;border-color:#a47a34;color:#5c4014}

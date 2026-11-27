@@ -16,7 +16,7 @@ Non-functional requirements: local processing, no mandatory paid AI APIs, access
 
 ## MVP boundaries
 
-The v0.1 MVP is text input only. The v0.2 scope adds local image OCR and editable recognized text; experimental selectable-text PDF input and manual event checklists are in development for v1.0. Checklists are exported as plain descriptions, not interactive calendar tasks. Scanned PDF OCR and optional AI remain future work. Extraction remains limited and deterministic.
+The v0.1 MVP is text input only. The v0.2 scope adds local image OCR and editable recognized text; experimental PDF text input, single-page OCR and manual event checklists are in development for v1.0. Checklists are exported as plain descriptions, not interactive calendar tasks. Optional AI remains future work. Extraction remains limited and deterministic.
 
 ## Success criteria
 
