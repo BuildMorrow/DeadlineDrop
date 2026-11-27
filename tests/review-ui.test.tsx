@@ -8,6 +8,17 @@ import App from '../src/app/App'
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('event review interaction', () => {
+  it('requires confirmation again when the checklist changes', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.change(screen.getByLabelText('CHECKLIST (OPTIONAL, ONE ITEM PER LINE)'), { target: { value: 'Bring notes' } })
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(false)
+  })
   it('has no automated accessibility violations in the initial and ambiguous review states', async () => {
     const { container } = render(<App />)
     const options = { rules: { 'color-contrast': { enabled: false } } }

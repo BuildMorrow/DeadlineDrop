@@ -5,6 +5,7 @@ export interface Candidate {
   id: string
   source: string
   title: string
+  checklist?: string
   date: string
   time: string
   allDay: boolean

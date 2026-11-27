@@ -5,6 +5,17 @@ import { createCalendar, isValidEvent } from '../src/features/calendar/ics'
 import { resolveRange } from '../src/features/calendar/resolution'
 
 describe('calendar interoperability', () => {
+  it('exports a user-written checklist as escaped plain text without creating new events', () => {
+    const [event] = extractCandidates('Meeting 2027-05-20 10:00')
+    const checklist = 'Nộp bài, bản chính\nChuẩn bị; \\ tài liệu\nBEGIN:VEVENT'
+    const output = createCalendar([{ ...event, checklist, confirmed: true }])
+    const calendar = new ICAL.Component(ICAL.parse(output))
+    const events = calendar.getAllSubcomponents('vevent')
+    expect(events).toHaveLength(1)
+    expect(events[0].getFirstPropertyValue('description')).toBe('- [ ] Nộp bài, bản chính\n- [ ] Chuẩn bị; \\ tài liệu\n- [ ] BEGIN:VEVENT')
+    expect(isValidEvent({ ...event, checklist: 'bad\u0000text' })).toBe(false)
+    expect(() => createCalendar([{ ...event, checklist: 'bad\u0000text', confirmed: true }])).toThrow()
+  })
   it('parses exported timed, ranged and all-day events with an independent ICS parser', () => {
     const [timed, range, allDay] = extractCandidates('Meeting 2027-05-20T14:30Z\nWorkshop 2027-05-21 10:00-11:00\nDeadline 2027-05-25')
     const events = [

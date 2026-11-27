@@ -24,8 +24,12 @@ export function isValidTitle(title: string): boolean {
   }
   return true
 }
+export function isValidChecklist(value: string): boolean {
+  return value.length <= 5000 && isValidTitle(`x${value}`)
+}
 export function isValidEvent(event: Candidate): boolean {
   if (!isValidTitle(event.title) || !/^\d{4}-\d{2}-\d{2}$/.test(event.date)) return false
+  if (!isValidChecklist(event.checklist ?? '')) return false
   let date: Temporal.PlainDate
   try { date = Temporal.PlainDate.from(event.date) } catch { return false }
   if (date.year < 1000) return false
@@ -45,6 +49,10 @@ export function createCalendar(events: Candidate[], now = new Date()): string {
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//BuildMorrow//DeadlineDrop//EN', 'CALSCALE:GREGORIAN']
   events.forEach((event, index) => {
     lines.push('BEGIN:VEVENT', `UID:${crypto.randomUUID()}-${index}@deadlinedrop`, `DTSTAMP:${utc(now)}`, `SUMMARY:${escapeText(event.title.trim())}`)
+    if (event.checklist?.trim()) {
+      const items = event.checklist.split(/\r\n|\r|\n/).map(item => item.trim()).filter(Boolean)
+      lines.push(`DESCRIPTION:${escapeText(items.map(item => `- [ ] ${item}`).join('\n'))}`)
+    }
     if (event.allDay) {
       const next = Temporal.PlainDate.from(event.date).add({ days: 1 }).toString().replace(/-/g, '')
       lines.push(`DTSTART;VALUE=DATE:${event.date.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${next}`)
