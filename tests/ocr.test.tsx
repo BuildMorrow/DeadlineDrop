@@ -17,6 +17,14 @@ const mockWorker = { recognize: vi.fn(), terminate: vi.fn() }
 vi.mock('../src/features/ocr/startWorker', () => ({ startWorker: vi.fn(async () => mockWorker) }))
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks() })
 describe('image input', () => {
+  it('requests a leave warning while an image is selected', () => {
+    const view = render(<ImageToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from an image'))
+    fireEvent.change(screen.getByLabelText(/IMAGE \(/), { target: { files: [sampleFile()] } })
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false)
+    view.unmount()
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true)
+  })
   it('rejects unsupported, empty and oversized files', () => {
     expect(validateImage({ type: 'application/pdf', size: 100 })).toContain('PNG')
     expect(validateImage({ type: 'image/png', size: 0 })).toContain('8 MB')

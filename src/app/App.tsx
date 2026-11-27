@@ -5,6 +5,7 @@ import { localOptions, resolveLocal, type Choice } from '../features/calendar/ti
 import { resolveManual, resolveOffset, resolveRange, resolveSourceOccurrence } from '../features/calendar/resolution'
 import { checklistItems, toggleChecklistItem } from '../features/calendar/checklist'
 import { watchUpdate } from '../lib/watchUpdate'
+import { useUnsavedWarning } from '../lib/useUnsavedWarning'
 import { translate, type Language } from './i18n'
 import { ImageToText } from '../features/ocr/ImageToText'
 import { PdfToText } from '../features/pdf/PdfToText'
@@ -43,12 +44,7 @@ export default function App() {
   const [referenceDate, setReferenceDate] = useState('')
   const [referenceZone, setReferenceZone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')
   const [events, setEvents] = useState<Candidate[]>([])
-  useEffect(() => {
-    if (!text.trim() && events.length === 0) return
-    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = '' }
-    window.addEventListener('beforeunload', warn)
-    return () => window.removeEventListener('beforeunload', warn)
-  }, [text, events.length])
+  useUnsavedWarning(Boolean(text.trim()) || events.length > 0)
   const [searched, setSearched] = useState(false)
   const [error, setError] = useState('')
   const confirmButtons = useRef<Record<string, HTMLButtonElement | null>>({})

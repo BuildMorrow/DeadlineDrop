@@ -8,6 +8,14 @@ vi.mock('../src/features/pdf/readPdf', () => ({ readPdf: vi.fn() }))
 afterEach(() => { cleanup(); vi.clearAllMocks() })
 const sample = () => new File(['%PDF-1.4'], 'sample.pdf', { type: 'application/pdf' })
 describe('PDF review controls', () => {
+  it('requests a leave warning while a PDF is selected, and removes it on unmount', () => {
+    const view = render(<PdfToText onUseText={vi.fn()} />)
+    fireEvent.click(screen.getByText('Read text from a PDF'))
+    fireEvent.change(screen.getByLabelText('PDF (MAX 8 MB, 20 PAGES)'), { target: { files: [sample()] } })
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false)
+    view.unmount()
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true)
+  })
   it('requires review and explicit transfer, and warns about empty pages', async () => {
     vi.mocked(readPdf).mockResolvedValueOnce({ text: 'Deadline 2027-05-20', pages: ['Deadline 2027-05-20', ''] })
     const useText = vi.fn()

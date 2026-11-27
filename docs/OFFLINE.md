@@ -10,6 +10,6 @@ Image OCR and PDF reading are not included in the offline cache and may need a c
 
 Updates install a new shell without forcing an open page to reload. When an update is waiting, the app can display a notice asking users to export their work before closing all DeadlineDrop tabs and reopening the app. The browser normally activates the update once pages controlled by the old worker close; update detection has not yet been verified across browsers. The worker removes only old DeadlineDrop caches for its own path. As with the online app, input and events are held in memory: refreshing or closing the page clears them. Export confirmed events before closing if needed.
 
-The app requests a browser warning when leaving a page containing main input text or events. Browsers control whether the warning appears; it does not save or restore data, and it does not cover image or PDF text that has not yet been transferred to the main input.
+The app requests a browser warning when leaving a page containing main input text, events, or a selected image or PDF. Browsers control whether the warning appears; it does not save or restore data and may not appear in all situations, especially on mobile devices.
 
 The connection notice uses the browser's online/offline signal; it cannot prove that a particular server is reachable. The first release should be verified on the actual GitHub Pages path and representative browsers and devices. See [QA checklist](QA_CHECKLIST.md) for observations, not a blanket guarantee of offline operation.

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { translate, type Language } from '../../app/i18n'
 import { validatePdf } from './limits'
 import { PdfPageOcr } from './PdfPageOcr'
+import { useUnsavedWarning } from '../../lib/useUnsavedWarning'
 
 export function PdfToText({ onUseText, language = 'en' }: { onUseText: (text: string) => void; language?: Language }) {
   const t = (value: string) => translate(language, value)
@@ -13,6 +14,7 @@ export function PdfToText({ onUseText, language = 'en' }: { onUseText: (text: st
   const [hasResult, setHasResult] = useState(false)
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
+  useUnsavedWarning(Boolean(file))
   const controller = useRef<AbortController | null>(null)
   const generation = useRef(0)
   const readButton = useRef<HTMLButtonElement>(null)

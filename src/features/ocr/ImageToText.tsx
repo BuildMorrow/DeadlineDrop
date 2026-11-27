@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { translate, type Language } from '../../app/i18n'
 import type { OcrWorker } from './startWorker'
 import { imageDimensions, validImageDimensions, validateImage } from './validateImage'
+import { useUnsavedWarning } from '../../lib/useUnsavedWarning'
 
 export function ImageToText({ onUseText, language: uiLanguage = 'en' }: { onUseText: (text: string) => void; language?: Language }) {
   const t = (value: string) => translate(uiLanguage, value)
@@ -11,6 +12,7 @@ export function ImageToText({ onUseText, language: uiLanguage = 'en' }: { onUseT
   const [hasResult, setHasResult] = useState(false)
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
+  useUnsavedWarning(Boolean(file))
   const generation = useRef(0)
   const worker = useRef<OcrWorker | null>(null)
   const startup = useRef<AbortController | null>(null)
