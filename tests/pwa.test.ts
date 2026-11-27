@@ -52,6 +52,23 @@ describe('offline shell service worker', () => {
       ['https://example.com/DeadlineDrop/assets/app.js', 'POST'],
     ]) expect(await sw.request(url, 'cors', method)).toBeUndefined()
   })
+  it('falls back to the network when cache storage cannot be opened', async () => {
+    const sw = workerHarness()
+    await sw.lifecycle('install')
+    sw.fetcher.mockClear()
+    sw.caches.open.mockRejectedValueOnce(new Error('storage unavailable'))
+    const result = await sw.request('https://example.com/DeadlineDrop/', 'navigate')
+    expect(result).toBeTruthy()
+    expect(sw.fetcher).toHaveBeenCalledOnce()
+  })
+  it('falls back on cache read failure and propagates network failure', async () => {
+    const sw = workerHarness()
+    await sw.lifecycle('install')
+    sw.caches.open.mockImplementationOnce(async () => ({ put: async () => {}, match: async () => { throw new Error('read failed') } }))
+    sw.fetcher.mockRejectedValueOnce(new Error('network unavailable'))
+    await expect(sw.request('https://example.com/DeadlineDrop/assets/app.js')).rejects.toThrow('network unavailable')
+    expect(sw.fetcher).toHaveBeenCalled()
+  })
   it('keeps the old shell while a new worker installs, and removes it only on activation', async () => {
     const sw = workerHarness()
     sw.stores.set('deadlinedrop-shell:/DeadlineDrop/:old', new Map([['old-page', 'old']]))

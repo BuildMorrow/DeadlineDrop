@@ -73,8 +73,14 @@ self.addEventListener('fetch', event => {
   const key = isHome ? HOME : url.href;
   if (!isHome && !ALLOWED.has(key)) return;
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE);
-    return await cache.match(key) || fetch(request);
+    try {
+      const cache = await caches.open(CACHE);
+      const cached = await cache.match(key);
+      if (cached) return cached;
+    } catch {
+      // Cache storage may be unavailable even while the network works.
+    }
+    return fetch(request);
   })());
 });
 `
