@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — local drafts (in progress)
+
+- Add optional named browser-local drafts for message text and reference settings, with explicit save, load and delete. Event reviews are never restored.
+
 ## Unreleased — v1.0 document input (in progress)
 
 - Add experimental local PDF selectable-text extraction, with file, page and extracted-text limits, cancellation and required text review.

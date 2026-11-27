@@ -46,3 +46,7 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Broader scanned-document handling and improved language understanding remain planned.
 - Optional AI-assisted extraction with an explicit privacy design.
 
+## Later workflow improvements (in progress)
+
+- Optional, user-initiated local drafts save message text and reference settings; event edits and confirmations must be recreated. Stored drafts are unencrypted, limited and deletable; cross-browser and device verification remains outstanding.
+

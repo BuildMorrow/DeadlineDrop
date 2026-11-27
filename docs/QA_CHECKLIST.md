@@ -1,5 +1,9 @@
 # Manual QA checklist
 
+## Local draft sample — 2026-11-28
+
+On Windows in the in-app browser, a production preview at `http://127.0.0.1:5185/DeadlineDrop/` saved a synthetic message as `Example QA`. A second tab loaded that draft and displayed the original message with export disabled until a new review. The sample remains in local storage for that localhost origin. This check does not establish behavior in other browsers, devices, private mode, or storage failure scenarios.
+
 ## Synthetic scanned PDF integration — 2026-11-27
 
 An automated Node test renders two synthetic image-only PDF pages with PDF.js and the optional native canvas package, then runs the local English and Vietnamese Tesseract models. The recognized dates and times are checked through extraction and the confirmation gate before ICS generation. The test skips when the optional native canvas dependency is unavailable. This does not exercise the browser canvas, the app's PDF rendering adapter, real-world scanned documents, or the UI end to end.

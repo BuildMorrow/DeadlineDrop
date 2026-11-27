@@ -1,6 +1,6 @@
 # Architecture
 
-DeadlineDrop is a static React and TypeScript frontend. It keeps input and candidates in browser memory.
+DeadlineDrop is a static React and TypeScript frontend. It keeps active input and candidates in browser memory. Optional user-initiated drafts store only message text and reference settings in localStorage; they never restore candidates or confirmations. Saved draft data is versioned and validated before use.
 
 ## Responsibilities and flow
 
@@ -14,7 +14,7 @@ Image input runs Tesseract.js in a browser worker. The build copies the pinned w
 
 ## Testing and privacy
 
-Vitest covers representative extraction and calendar serialization cases. CI runs lint, type checking, tests and build. User content remains in the browser; avoid logging, analytics, or network transmission of content. Optional future AI requires explicit consent and a separate privacy design.
+Vitest covers representative extraction and calendar serialization cases. CI runs lint, type checking, tests and build. User content remains in the browser; avoid logging, analytics, or network transmission of content. Optional drafts are unencrypted and available to the same browser profile, and browser storage may be cleared or evicted. Optional future AI requires explicit consent and a separate privacy design.
 
 Explicit offsets are converted using Temporal. A bare negative offset overlaps with range syntax and requires an explicit choice. Unsupported zone clues require editing both the local date and time before applying a correction. This is a limited parser and cannot identify every natural-language zone. See the manual QA checklist before release.
 
