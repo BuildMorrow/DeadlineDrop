@@ -18,7 +18,7 @@ Use one event per line and include a four-digit year. Supported dates include IS
 
 ## How to use
 
-Use the language selector to choose English or Vietnamese, and the theme button to switch between dark and light. These choices last for the current page session and are not saved.
+Use the language selector to choose English or Vietnamese, and the theme button to switch between dark and light. These choices last for the current page session and are not saved. Loading an example or transferring image/PDF text asks for confirmation before replacing an existing message and clearing its review.
 
 To start from an image, open **Read text from an image**, choose a supported file and its language, and select **Read image**. Correct the recognized text, then select **Use this text**. This replaces the current input and clears its event review. Continue with the text workflow below; check all dates against the original image.
 
