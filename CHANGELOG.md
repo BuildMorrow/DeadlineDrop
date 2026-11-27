@@ -9,6 +9,7 @@
 
 ## Unreleased — v0.6 PWA and offline (in progress)
 
+- Notify users when an update is waiting without automatically reloading or discarding their work.
 - Add a scoped web app manifest and offline cache for the production text-workflow shell.
 - Keep user content and OCR assets out of the service worker cache; updates do not force active pages to reload.
 
