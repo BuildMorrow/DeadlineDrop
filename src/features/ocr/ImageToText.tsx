@@ -4,7 +4,7 @@ import type { OcrWorker } from './startWorker'
 import { imageDimensions, validImageDimensions, validateImage } from './validateImage'
 import { useUnsavedWarning } from '../../lib/useUnsavedWarning'
 
-export function ImageToText({ onUseText, language: uiLanguage = 'en' }: { onUseText: (text: string) => void; language?: Language }) {
+export function ImageToText({ onUseText, onAppendText, language: uiLanguage = 'en' }: { onUseText: (text: string) => void; onAppendText?: (text: string) => void; language?: Language }) {
   const t = (value: string) => translate(uiLanguage, value)
   const [file, setFile] = useState<File | null>(null)
   const [language, setLanguage] = useState('eng')
@@ -84,11 +84,11 @@ export function ImageToText({ onUseText, language: uiLanguage = 'en' }: { onUseT
   }
 
   return <details className="image-ocr"><summary>{t("Read text from an image")}</summary>
-    <p>{t("Images stay on your device. OCR resources download from this site when needed. Review the text for mistakes. Using it replaces your message and clears the current event review.")}</p>
+    <p>{t("Images stay on your device. OCR resources download from this site when needed. Review the text for mistakes. You can replace or add to your message; either action clears the current event review.")}</p>
     <label className="field-label">{t("IMAGE (PNG, JPEG, WEBP; MAX 8 MB)")}<input className="field-input" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { setFile(e.target.files?.[0] ?? null); setText(''); setHasResult(false); setStatus('') }} /></label>
     <label className="field-label">{t("IMAGE LANGUAGE")}<select className="field-input" value={language} disabled={busy} onChange={e => { setLanguage(e.target.value); setText(''); setHasResult(false); setStatus('') }}><option value="eng">{t("English")}</option><option value="vie">{t("Vietnamese")}</option></select></label>
     <div className="resolution-actions"><button ref={readButton} type="button" className="button button-outline" aria-disabled={busy} onClick={() => void recognize()}>{t("Read image")}</button>{busy && <button ref={cancelButton} type="button" className="button button-outline" onClick={cancel}>{t("Cancel")}</button>}</div>
     <p role="status" aria-live="polite">{t(status)}</p>
-    {hasResult && <><label className="field-label">{t("RECOGNIZED TEXT")}<textarea className="source-input" value={text} onChange={e => setText(e.target.value)} /></label><button type="button" className="button button-primary" disabled={!text.trim() || busy} onClick={() => onUseText(text)}>{t("Use this text")}</button></>}
+    {hasResult && <><label className="field-label">{t("RECOGNIZED TEXT")}<textarea className="source-input" value={text} onChange={e => setText(e.target.value)} /></label><div className="resolution-actions"><button type="button" className="button button-primary" disabled={!text.trim() || busy} onClick={() => onUseText(text)}>{t("Use this text")}</button>{onAppendText && <button type="button" className="button button-outline" disabled={!text.trim() || busy} onClick={() => onAppendText(text)}>{t('Add to message')}</button>}</div></>}
   </details>
 }
