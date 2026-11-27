@@ -16,6 +16,11 @@ describe('calendar interoperability', () => {
     expect(isValidEvent({ ...event, checklist: 'bad\u0000text' })).toBe(false)
     expect(() => createCalendar([{ ...event, checklist: 'bad\u0000text', confirmed: true }])).toThrow()
   })
+  it('preserves checked and unchecked checklist items in the calendar description', () => {
+    const [event] = extractCandidates('Meeting 2027-05-20 10:00')
+    const calendar = new ICAL.Component(ICAL.parse(createCalendar([{ ...event, checklist: '- [x] Nộp hồ sơ\n\n[ ] Verify, details', confirmed: true }])))
+    expect(calendar.getFirstSubcomponent('vevent').getFirstPropertyValue('description')).toBe('- [x] Nộp hồ sơ\n- [ ] Verify, details')
+  })
   it('parses exported timed, ranged and all-day events with an independent ICS parser', () => {
     const [timed, range, allDay] = extractCandidates('Meeting 2027-05-20T14:30Z\nWorkshop 2027-05-21 10:00-11:00\nDeadline 2027-05-25')
     const events = [

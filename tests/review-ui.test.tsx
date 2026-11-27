@@ -33,6 +33,19 @@ describe('event review interaction', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
     expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(false)
   })
+  it('allows checklist progress to be changed and requires renewed confirmation', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Meeting 2027-05-20 10:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
+    const input = screen.getByLabelText('CHECKLIST (OPTIONAL, ONE ITEM PER LINE)') as HTMLTextAreaElement
+    fireEvent.change(input, { target: { value: 'Bring notes\n\nSend report' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm event 1' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Send report' }))
+    expect(input.value).toBe('Bring notes\n\n- [x] Send report')
+    expect((screen.getByRole('button', { name: 'Export .ics' }) as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Send report' }))
+    expect(input.value).toBe('Bring notes\n\n- [ ] Send report')
+  })
   it('has no automated accessibility violations in the initial and ambiguous review states', async () => {
     const { container } = render(<App />)
     const options = { rules: { 'color-contrast': { enabled: false } } }

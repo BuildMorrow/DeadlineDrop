@@ -1,6 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import type { Candidate } from '../extraction/extract'
 import { resolveLocal } from './time'
+import { checklistItems } from './checklist'
 
 const escapeText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;')
 function fold(line: string): string {
@@ -50,8 +51,8 @@ export function createCalendar(events: Candidate[], now = new Date()): string {
   events.forEach((event, index) => {
     lines.push('BEGIN:VEVENT', `UID:${crypto.randomUUID()}-${index}@deadlinedrop`, `DTSTAMP:${utc(now)}`, `SUMMARY:${escapeText(event.title.trim())}`)
     if (event.checklist?.trim()) {
-      const items = event.checklist.split(/\r\n|\r|\n/).map(item => item.trim()).filter(Boolean)
-      lines.push(`DESCRIPTION:${escapeText(items.map(item => `- [ ] ${item}`).join('\n'))}`)
+      const items = checklistItems(event.checklist)
+      lines.push(`DESCRIPTION:${escapeText(items.map(item => `- [${item.done ? 'x' : ' '}] ${item.text}`).join('\n'))}`)
     }
     if (event.allDay) {
       const next = Temporal.PlainDate.from(event.date).add({ days: 1 }).toString().replace(/-/g, '')
