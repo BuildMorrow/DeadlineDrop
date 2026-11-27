@@ -1,5 +1,9 @@
 # Manual QA checklist
 
+## Synthetic scanned PDF integration — 2026-11-27
+
+An automated Node test renders two synthetic image-only PDF pages with PDF.js and the optional native canvas package, then runs the local English and Vietnamese Tesseract models. The recognized dates and times are checked through extraction and the confirmation gate before ICS generation. The test skips when the optional native canvas dependency is unavailable. This does not exercise the browser canvas, the app's PDF rendering adapter, real-world scanned documents, or the UI end to end.
+
 ## v0.6 local origin-unavailable check — 2026-11-27
 
 On Windows in the in-app browser with the `Asia/Saigon` timezone, the production preview was opened and reloaded online at `http://127.0.0.1:5184/DeadlineDrop/`. The local preview server was then stopped. Reloading the same page still displayed the application; entering `Meeting 2027-05-20 10:00` produced a candidate with the same date and time, and confirming it enabled the export control. The downloaded file was not checked in this run. This observation covers one browser and an unavailable local origin; it is not an airplane-mode, installation, update-transition, physical-device, OCR, PDF, or cross-browser test.
