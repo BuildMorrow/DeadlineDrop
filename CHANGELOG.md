@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — review calendar (in progress)
+
+- Add a filter-aware month calendar for navigating candidates with resolved dates, including arrow-key navigation and explicit unresolved-date counts.
+
 ## Unreleased — conflict review (in progress)
 
 - Suggest possible duplicate events and overlapping timed ranges, while disclosing unresolved or unchecked candidates and processing limits.
