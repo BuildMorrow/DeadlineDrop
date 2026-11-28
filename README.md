@@ -32,6 +32,8 @@ Paste a message containing dates, preferably one event per line. For relative da
 
 For longer messages, open **Event overview** to search titles, filter by review status and jump to a candidate's review card. Dates that cannot be resolved are listed separately. This is a navigation aid: filters do not change which confirmed events are exported.
 
+The review also highlights possible duplicates and overlapping timed ranges. Duplicate suggestions require matching normalized titles and start dates or instants. Overlaps are checked only when both timed events have explicit end times; unresolved events and timed events without an end are reported as not fully checked. All-day events are not treated as blocking the whole day. The check is limited to the first 500 candidates and 100 matching pairs, and never automatically merges, changes or blocks events. A clean result does not guarantee there are no conflicts.
+
 ## Offline and installation
 
 The production build includes a web app manifest and caches the text-workflow shell after successful installation of the service worker. OCR and PDF resources are not included in the offline cache. Availability depends on the browser and its stored cache; see [offline and installation details](docs/OFFLINE.md).

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — conflict review (in progress)
+
+- Suggest possible duplicate events and overlapping timed ranges, while disclosing unresolved or unchecked candidates and processing limits.
+
 ## Unreleased — event overview (in progress)
 
 - Add date-grouped candidate navigation, title search and review-status filters without changing confirmation or export behavior.

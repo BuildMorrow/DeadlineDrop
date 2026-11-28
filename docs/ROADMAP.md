@@ -51,4 +51,5 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - Optional, user-initiated local drafts save message text and reference settings; event edits and confirmations must be recreated. Stored drafts are unencrypted, limited and deletable; cross-browser and device verification remains outstanding.
 - Optional unencrypted JSON backups can be exported and previewed before import. Imports do not overwrite existing drafts and reject conflicts or storage limits.
 - A collapsible overview groups candidates by resolved local date, supports title search and review-status filtering, and links to each review card. Filtering does not affect export.
+- A local review check highlights possible duplicates and overlaps between explicit timed ranges, with unresolved and unchecked events disclosed. It does not automatically merge or block events.
 
