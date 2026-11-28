@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — manual events (in progress)
+
+- Add manual event entry with explicit all-day or timed details, optional end times, review confirmation and protection against accidental review reset.
+
 ## Unreleased — review calendar (in progress)
 
 - Add a filter-aware month calendar for navigating candidates with resolved dates, including arrow-key navigation and explicit unresolved-date counts.

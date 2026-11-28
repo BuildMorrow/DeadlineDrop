@@ -171,5 +171,7 @@
 .conflict-list .resolution-actions { margin-top: 8px; }
 [data-theme="light"] .conflict-review { background: #fff7e8; border-color: #a47a34; color: #5c4014; }
 [data-theme="light"] .conflict-review summary:focus-visible { outline-color: #125d91; }
+.review-panel > .panel-heading { flex-wrap: wrap; }
+.manual-add { white-space: nowrap; }
 
 .offline-notice{margin:18px 0 0;padding:12px 14px;border:1px solid #765e35;border-radius:9px;background:#382f20;color:#ffe2a4;font-size:13px;line-height:1.5}[data-theme="light"] .offline-notice{background:#fff7e8;border-color:#a47a34;color:#5c4014}

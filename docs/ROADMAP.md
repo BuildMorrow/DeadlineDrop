@@ -53,4 +53,5 @@ The v0.1 text workflow and v0.2 image workflow are implemented with limited dete
 - A collapsible overview groups candidates by resolved local date, supports title search and review-status filtering, and links to each review card. Filtering does not affect export.
 - A month calendar in the overview shows filtered candidates on resolved local dates, supports keyboard navigation and links back to event review; it does not create or confirm events.
 - A local review check highlights possible duplicates and overlaps between explicit timed ranges, with unresolved and unchecked events disclosed. It does not automatically merge or block events.
+- Users can add an initially empty event manually, with optional explicit timed ranges and the same validation and confirmation requirements as extracted events.
 

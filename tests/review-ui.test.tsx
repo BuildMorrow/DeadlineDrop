@@ -5,7 +5,7 @@ import axe from 'axe-core'
 import ICAL from 'ical.js'
 import App from '../src/app/App'
 
-afterEach(() => { cleanup(); vi.unstubAllGlobals() })
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
 describe('event review interaction', () => {
   it('requests a browser warning before leaving with text and removes it when cleared', () => {
@@ -177,6 +177,7 @@ describe('event review interaction', () => {
   })
 
   it('requires a reference date and clears confirmed events if it changes', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Submit tomorrow at 5 pm' } })
     fireEvent.click(screen.getByRole('button', { name: 'Find dates' }))
@@ -193,6 +194,7 @@ describe('event review interaction', () => {
   })
 
   it('clears a confirmed relative event when the reference timezone changes', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     render(<App />)
     fireEvent.change(screen.getByLabelText('YOUR MESSAGE'), { target: { value: 'Submit tomorrow at 5 pm' } })
     fireEvent.change(screen.getByLabelText('REFERENCE DATE FOR RELATIVE DATES'), { target: { value: '2027-05-20' } })

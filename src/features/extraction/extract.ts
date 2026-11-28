@@ -4,6 +4,7 @@ import { convertOffset, fields, localOptions, zone, type Choice } from '../calen
 export interface Candidate {
   id: string
   source: string
+  manual?: boolean
   title: string
   checklist?: string
   date: string
